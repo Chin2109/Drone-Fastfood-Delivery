@@ -78,15 +78,8 @@ docker-compose up -d
 - `GET /orders/{id}` - Get order status.
 - `PUT /orders/{id}/status` - Update order status (*Restaurant/Delivery only*).
 
-## 🔗 Contributing
-We welcome contributions! Please fork the repository and submit a pull request.
 
 ## 📜 License
 Bento is licensed under the **MIT License**.
 
-## 📩 Contact
-For any questions or feedback, reach out via **anubhavauth@gmail.com**.
-
----
-Happy Coding! 🚀
 
