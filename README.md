@@ -1,6 +1,6 @@
-# Bento Backend 🍱
+# Drone Food Backend 
 
-Bento is a full-stack food delivery platform connecting restaurants, customers, and delivery personnel. This repository contains the backend, built with **Spring Boot**, providing APIs for authentication, order management, restaurant listings, and real-time order tracking.
+Drone Food Backend is a full-stack food delivery platform connecting restaurants, customers, and delivery personnel. This repository contains the backend, built with **Spring Boot**, providing APIs for authentication, order management, restaurant listings, and real-time order tracking.
 
 ## 🚀 Features
 - **Authentication & Authorization**: Secure login and access control for customers, restaurants, and delivery personnel.
@@ -80,6 +80,6 @@ docker-compose up -d
 
 
 ## 📜 License
-Bento is licensed under the **MIT License**.
+Drone Food Backend is licensed under the **MIT License**.
 
 
