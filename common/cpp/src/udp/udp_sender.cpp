@@ -55,3 +55,20 @@ int Udp::UdpSender::send(const void *buffer, int len) const
 {
 	return sendto(socket_fd, (char *) buffer, len, 0, addrinfo->ai_addr, addrinfo->ai_addrlen);
 }
+
+// hàm khởi tạo module cho Python
+PyMODINIT_FUNC PyInit_UdpSender(void)
+{
+    static PyModuleDef moduledef = {
+        PyModuleDef_HEAD_INIT,
+        "UdpSender",
+        "UDP Sender module",
+        -1,
+        NULL, NULL, NULL, NULL, NULL
+    };
+
+    PyObject* module = PyModule_Create(&moduledef);
+    if (!module)
+        return NULL;
+    return module;
+}

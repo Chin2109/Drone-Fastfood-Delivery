@@ -1,5 +1,5 @@
 TARGET = libvehicle
-PYTHON_VERSION = 2.7
+PYTHON_VERSION = 3.12
 OS = $(shell uname)
 
 USER_LOCAL_LIB = /usr/local/lib
@@ -23,8 +23,8 @@ else
 	SONAME = -soname,$(TARGET)
 endif
 
-OPENCV_INCLUDE = `pkg-config --cflags opencv`
-OPENCV_LIB = `pkg-config --libs opencv`
+OPENCV_INCLUDE = `pkg-config --cflags opencv4`
+OPENCV_LIB = `pkg-config --libs opencv4`
 
 COMPILE_FLAGS =  -O -std=c++11 -I$(PYTHON_INCLUDE) -I$(BOOST_PYTHON_INCLUDE) -fPIC $(OPENCV_INCLUDE) -I../../../common/cpp/src/ -I./common/ -I./mission/ -I./video/ -I./algorithm/ -I$(BOOST_INCLUDE)
 LIBRARY_FLAGS = -shared -Wl,$(SONAME) -L$(BOOST_PYTHON_LIB) -lboost_python -L$(PYTHON_LIB) -lpython$(PYTHON_VERSION) $(OPENCV_LIB) -L$(USER_LOCAL_LIB) -lcommon -L$(BOOST_LIB) -lboost_system -llapack -lblas -larmadillo

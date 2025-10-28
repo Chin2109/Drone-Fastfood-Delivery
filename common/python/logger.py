@@ -1,11 +1,11 @@
-from Queue import Queue
-from common.cpp.build.libcommon import UdpSender
+from queue import Queue
+from common.cpp.build import UdpSender
 from threading import Thread
 import datetime
 import os
 import json
-from types import LogTypes
-from types import StatusTypes
+from common.python.types import LogTypes
+from common.python.types import StatusTypes
 
 '''
   Logs to UDP, file, output
@@ -19,19 +19,19 @@ class _Logger:
         if not os.path.exists("logs"):
             os.makedirs("logs")
         self.__file = open(
-            "logs/" + str(datetime.datetime.now().strftime("%d-%m-%YT%H.%M.%S")), "a", 0)
+            "logs/" + str(datetime.datetime.now().strftime("%d-%m-%YT%H.%M.%S")), "a")
 
         def pull_logs():
             while True:
                 log = self.__log_queue.get(block=True)
                 try:
-                    print log["body"]
+                    print (log["body"])
                     if self.__udp_client is not None:
                         self.__udp_client.send(json.dumps(log))
 
                     self.__file.write(log["body"] + "\n")
-                except Exception, ex:
-                    print "Error logging message. Ex: {0}".format(str(ex))
+                except Exception as ex:
+                    print ("Error logging message. Ex: {0}".format(str(ex)))
 
         logger_thread = Thread(target=pull_logs)
         logger_thread.setDaemon(True)
@@ -44,8 +44,8 @@ class _Logger:
                     if self.__cmd_server is not None:
                         self.__cmd_server.send_message_to_all(
                             json.dumps(status))
-                except Exception, ex:
-                    print "Error delivering status. Ex: {0}".format(str(ex))
+                except Exception as ex:
+                    print ("Error delivering status. Ex: {0}".format(str(ex)))
 
         status_thread = Thread(target=pull_status)
         status_thread.setDaemon(True)
@@ -82,7 +82,9 @@ class _Logger:
         self.__log_queue.put({"type": str(type), "body": full_msg})
 
     def __del__(self):
-        self.__file.close()
+        if hasattr(self, "_Logger__file") and self.__file:
+            self.__file.close()
+
 
 
 Logger = _Logger()
