@@ -1,2 +1,0 @@
-payment id sync with order
-cancel order

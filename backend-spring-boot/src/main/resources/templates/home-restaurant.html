@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body>
+<h1>🍽️ Trang chủ Nhà hàng</h1>
+
+<p>Xin chào, <span th:text="${restaurant.name}">Tên Nhà Hàng</span>!</p>
+
+<hr>
+
+<h3>Chức năng quản lý</h3>
+<ul>
+    <li><a th:href="@{/restaurant/info}">Xem thông tin nhà hàng</a></li>
+    <li><a th:href="@{/restaurant/menu}">Xem thực đơn</a></li>
+    <li><a th:href="@{/restaurant/menu/add}">Thêm món mới</a></li>
+    <li><a th:href="@{/restaurant/orders}">Xem đơn hàng</a></li>
+    <li><a th:href="@{/restaurant/orders/update}">Cập nhật trạng thái đơn hàng</a></li>
+    <li><a th:href="@{/restaurant/orders/update}">Quản lý giao dịch</a></li>
+</ul>
+
+<hr>
+
+<a th:href="@{/logout}">Đăng xuất</a>
+</body>
+</html>

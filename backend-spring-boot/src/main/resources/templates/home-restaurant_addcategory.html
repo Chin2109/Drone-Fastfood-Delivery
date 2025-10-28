@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Loại, nguyên liệu</title>
+</head>
+<body>
+<h1>Thêm loại món ăn</h1>
+<form th:action="@{/admin/category}", method="post">
+    <label>Tên loại:</label><br>
+    <input type="text" name="name" required><br><br>
+
+    <input type="hidden" name="">
+</form>
+</body>
+</html>
