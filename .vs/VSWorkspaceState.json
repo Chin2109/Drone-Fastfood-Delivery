@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\common",
+    "\\common\\cpp",
+    "\\common\\cpp\\src",
+    "\\ground",
+    "\\presentation",
+    "\\sanity_tests",
+    "\\vehicle",
+    "\\vehicle\\python"
+  ],
+  "SelectedNode": "\\common\\cpp\\__pycache__",
+  "PreviewInSolutionExplorer": false
+}

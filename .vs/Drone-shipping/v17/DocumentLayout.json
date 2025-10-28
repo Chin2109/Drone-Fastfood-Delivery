@@ -1,0 +1,138 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\ground\\main.py||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ground\\main.py||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\common\\python\\logger.py||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:common\\python\\logger.py||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\ground\\communication_channel.py||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ground\\communication_channel.py||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\common\\cpp\\src\\udp\\udp_receiver.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:common\\cpp\\src\\udp\\udp_receiver.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\common\\cpp\\src\\udp\\udp_sender.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:common\\cpp\\src\\udp\\udp_sender.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\common\\cpp\\src\\clock.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:common\\cpp\\src\\clock.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 245,
+          "SelectedChildIndex": 7,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "udp_sender.cpp",
+              "DocumentMoniker": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\common\\cpp\\src\\udp\\udp_sender.cpp",
+              "RelativeDocumentMoniker": "common\\cpp\\src\\udp\\udp_sender.cpp",
+              "ToolTip": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\common\\cpp\\src\\udp\\udp_sender.cpp",
+              "RelativeToolTip": "common\\cpp\\src\\udp\\udp_sender.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-10-27T03:52:36.234Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "udp_receiver.cpp",
+              "DocumentMoniker": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\common\\cpp\\src\\udp\\udp_receiver.cpp",
+              "RelativeDocumentMoniker": "common\\cpp\\src\\udp\\udp_receiver.cpp",
+              "ToolTip": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\common\\cpp\\src\\udp\\udp_receiver.cpp",
+              "RelativeToolTip": "common\\cpp\\src\\udp\\udp_receiver.cpp",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-10-27T03:52:34.671Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "logger.py",
+              "DocumentMoniker": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\common\\python\\logger.py",
+              "RelativeDocumentMoniker": "common\\python\\logger.py",
+              "ToolTip": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\common\\python\\logger.py",
+              "RelativeToolTip": "common\\python\\logger.py",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2025-10-27T03:41:42.332Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "communication_channel.py",
+              "DocumentMoniker": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\ground\\communication_channel.py",
+              "RelativeDocumentMoniker": "ground\\communication_channel.py",
+              "ToolTip": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\ground\\communication_channel.py",
+              "RelativeToolTip": "ground\\communication_channel.py",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2025-10-27T02:59:45.442Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "main.py",
+              "DocumentMoniker": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\ground\\main.py",
+              "RelativeDocumentMoniker": "ground\\main.py",
+              "ToolTip": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\ground\\main.py",
+              "RelativeToolTip": "ground\\main.py",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2025-10-27T02:57:58.277Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "clock.cpp",
+              "DocumentMoniker": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\common\\cpp\\src\\clock.cpp",
+              "RelativeDocumentMoniker": "common\\cpp\\src\\clock.cpp",
+              "ToolTip": "D:\\New_Project\\CNPM\\Drone\\Drone-shipping\\common\\cpp\\src\\clock.cpp",
+              "RelativeToolTip": "common\\cpp\\src\\clock.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-10-27T02:51:34.945Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 TARGET = libcommon
-PYTHON_VERSION = 2.7
+PYTHON_VERSION = 3.12
 OS := $(shell uname)
 
 ifeq ($(OS),Darwin)
