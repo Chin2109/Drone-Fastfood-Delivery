@@ -6,11 +6,8 @@
 #include <mutex>
 #include <string>
 #include <vector>
-#include <opencv2/core/types.hpp>
-#include <opencv2/imgproc.hpp>
+#include <opencv2/opencv.hpp>
 #include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgcodecs/imgcodecs_c.h>
-#include "../common/logger.hpp"
 #include "gil_lock.hpp"
 #include "video.hpp"
 #include "udp/udp_sender.hpp"

@@ -39,7 +39,7 @@ void ImageStreamer::start_sending_images(){
     ::Common::Clock clock;
     std::vector<uchar> encoded;
     std::vector<int> compression_params;
-    compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
+    compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
     compression_params.push_back(ENCODE_QUALITY);
     std::unique_lock<std::mutex> qlk(_queue_mutex,std::defer_lock);
     while(!_should_abort.load()){
