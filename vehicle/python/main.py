@@ -10,11 +10,10 @@ from vehicle.cpp.build.libvehicle import VideoProvider, VideoStreamer,VideoRecor
 from common.python.logger import Logger
 from common.python.cmd_server import CMDServer
 from common.python.types import CMDTypes
-from mission_executer import execute_mission
+from .mission_executer import execute_mission
 import time
 import datetime
 import os
-
 TAG = "OdroidMain"
 
 def parse_arguments():

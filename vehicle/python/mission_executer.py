@@ -1,5 +1,5 @@
 from common.python.logger import Logger
-import vehicle_control
+from . import vehicle_control
 from threading import Lock
 
 TAG = "MissionExecuter"
@@ -14,7 +14,7 @@ def execute_mission(mission):
                 Logger.warn("Could not arm vehicle. Will not start mission", TAG)
             else:
                 mission.start()
-        except RuntimeError, ex:
+        except (RuntimeError) as ex:
             Logger.critical("Cpp module threw exception: {0}. Aborting!", TAG)
             vehicle_control.abort()
         finally:
