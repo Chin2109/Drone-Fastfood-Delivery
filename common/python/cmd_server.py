@@ -1,7 +1,7 @@
 import json
 from websocket_server import WebsocketServer
 from enum import Enum
-from types import CMDTypes
+from common.python.types import CMDTypes
 
 
 # CMDServer Exceptions

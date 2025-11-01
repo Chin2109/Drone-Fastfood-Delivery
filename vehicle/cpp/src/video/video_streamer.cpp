@@ -14,7 +14,7 @@ void VideoStreamer::start_sending_video(){
     }
     std::vector< uchar > encoded;
     std::vector< int > compression_params;
-    compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
+    compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
     compression_params.push_back(ENCODE_QUALITY);
     _running.store(true);
     VideoProvider& provider = VideoProvider::get_instance();

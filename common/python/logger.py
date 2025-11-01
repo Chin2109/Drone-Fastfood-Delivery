@@ -1,5 +1,5 @@
 from queue import Queue
-from common.cpp.build import UdpSender
+from common.cpp.build.libcommon import UdpSender
 from threading import Thread
 import datetime
 import os
