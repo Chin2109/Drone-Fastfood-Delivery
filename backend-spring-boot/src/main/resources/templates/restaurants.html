@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant List</title>
+</head>
+<body>
+<h1>Danh sách nhà hàng</h1>
+
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Tên nhà hàng</th>
+        <th>Mô tả</th>
+        <th>Loại ẩm thực</th>
+        <th>Giờ mở cửa</th>
+        <th>Trạng thái</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="restaurant : ${restaurants}">
+        <td th:text="${restaurant.id}">1</td>
+        <td th:text="${restaurant.name}">Tên</td>
+        <td th:text="${restaurant.description}">Mô tả</td>
+        <td th:text="${restaurant.cuisineType}">Ẩm thực</td>
+        <td th:text="${restaurant.openingHours}">Giờ</td>
+        <td th:text="${restaurant.open}">true</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

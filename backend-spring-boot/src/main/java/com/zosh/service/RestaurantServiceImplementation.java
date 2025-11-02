@@ -1,0 +1,132 @@
+package com.zosh.service;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.locationtech.jts.geom.Coordinate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.zosh.Exception.RestaurantException;
+import com.zosh.dto.RestaurantDto;
+import com.zosh.model.Address;
+import com.zosh.model.Restaurant;
+import com.zosh.model.User;
+import com.zosh.repository.AddressRepository;
+import com.zosh.repository.RestaurantRepository;
+import com.zosh.repository.UserRepository;
+import com.zosh.request.CreateRestaurantRequest;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Point;
+
+@Service
+public class RestaurantServiceImplementation implements RestaurantService {
+	@Autowired
+	private RestaurantRepository restaurantRepository;
+	@Autowired
+	private AddressRepository addressRepository;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private UserRepository userRepository;
+
+    @Autowired
+    private GeocodingService geocodingService;
+
+	@Autowired
+	private GeometryFactory geometryFactory;
+
+	@Override
+	public Restaurant createRestaurant(CreateRestaurantRequest req,User user) {
+		Address address=new Address();
+		address.setFullName(req.getAddress().getFullName());
+		address.setStreetAddress(req.getAddress().getStreetAddress());
+		address.setCity(req.getAddress().getCity());
+		address.setProvince(req.getAddress().getProvince());
+        try {
+            GeocodingService.Location location = geocodingService.getCoordinates(address.getFullName());
+			Coordinate coor = new Coordinate(location.getLng(),location.getLat());
+			Point point = geometryFactory.createPoint(coor);
+            address.setLocation(point);
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tìm tọa độ: " + e.getMessage());
+        }
+
+		Address savedAddress = addressRepository.save(address);
+		Restaurant restaurant = new Restaurant();
+		restaurant.setAddress(savedAddress);
+		restaurant.setMobile(req.getMobile());
+		restaurant.setCuisineType(req.getCuisineType());
+		restaurant.setDescription(req.getDescription());
+		restaurant.setImages(req.getImages());
+		restaurant.setName(req.getName());
+		restaurant.setOpeningHours(req.getOpeningHours());
+		restaurant.setRegistrationDate(req.getRegistrationDate());
+		restaurant.setOwner(user);
+		Restaurant savedRestaurant = restaurantRepository.save(restaurant);
+
+		return savedRestaurant;
+	}
+
+	@Override
+	public Restaurant updateRestaurant(Long restaurantId, CreateRestaurantRequest updatedReq)
+			throws RestaurantException {
+		Restaurant restaurant = findRestaurantById(restaurantId);
+		if (restaurant.getCuisineType() != null) {
+			restaurant.setCuisineType(updatedReq.getCuisineType());
+		}
+		if (restaurant.getDescription() != null) {
+			restaurant.setDescription(updatedReq.getDescription());
+		}
+		return restaurantRepository.save(restaurant);
+	}
+	
+	@Override
+	public Restaurant findRestaurantById(Long restaurantId) throws RestaurantException {
+		Optional<Restaurant> restaurant = restaurantRepository.findById(restaurantId);
+		if (restaurant.isPresent()) {
+			return restaurant.get();
+		} else {
+			throw new RestaurantException("Restaurant with id " + restaurantId + "not found");
+		}
+	}
+
+	@Override
+	public void deleteRestaurant(Long restaurantId) throws RestaurantException {
+		Restaurant restaurant = findRestaurantById(restaurantId);
+		if (restaurant != null) {
+			restaurantRepository.delete(restaurant);
+			return;
+		}
+		throw new RestaurantException("Restaurant with id " + restaurantId + " Not found");
+
+	}
+
+	@Override
+	public List<Restaurant> getAllRestaurant() {
+		return restaurantRepository.findAll();
+	}
+
+
+	@Override
+	public Restaurant getRestaurantsByUserId(Long userId) throws RestaurantException {
+		Restaurant restaurants=restaurantRepository.findByOwnerId(userId);
+		return restaurants;
+	}
+
+	@Override
+	public List<Restaurant> searchRestaurant(String keyword) {
+		return restaurantRepository.findBySearchQuery(keyword);
+	}
+
+	@Override
+	public Restaurant updateRestaurantStatus(Long id) throws RestaurantException {
+		Restaurant restaurant=findRestaurantById(id);
+		restaurant.setOpen(!restaurant.isOpen());
+		return restaurantRepository.save(restaurant);
+	}
+
+}
