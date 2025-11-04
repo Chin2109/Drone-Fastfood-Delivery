@@ -21,6 +21,7 @@ public class IngredientsItem {
 	private String name;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JsonIgnore
 	private IngredientCategory category;
 
 	private boolean inStoke=true;

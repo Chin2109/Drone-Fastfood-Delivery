@@ -7,6 +7,7 @@ import com.zosh.dto.RestaurantDto;
 import com.zosh.model.Restaurant;
 import com.zosh.model.User;
 import com.zosh.request.CreateRestaurantRequest;
+import com.zosh.response.MenuItemResponse;
 
 public interface RestaurantService {
 
@@ -26,4 +27,6 @@ public interface RestaurantService {
 	public Restaurant getRestaurantsByUserId(Long userId) throws RestaurantException;
 
 	public Restaurant updateRestaurantStatus(Long id)throws RestaurantException;
+
+	public List<MenuItemResponse> getMenu(Long id);
 }

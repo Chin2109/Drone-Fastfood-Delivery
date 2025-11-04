@@ -17,6 +17,6 @@ public class AddFoodRequest {
     private Long foodCategoryId;
     private List<String> images;
     private boolean available;
-    private List<IngredientCategoryDTO> ingredientCategoryDTO;
+    private List<IngredientCategoryDTO> ingredientCategoryDTOs;
     private Date creationDate;
 }

@@ -1,7 +1,9 @@
 package com.zosh.controller;
 
 import com.zosh.model.Category;
+import com.zosh.model.Food;
 import com.zosh.request.AddCategoryRequest;
+import com.zosh.request.AddFoodRequest;
 import com.zosh.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,5 +20,11 @@ public class FoodController {
     public ResponseEntity<Category> addCategory(@RequestBody AddCategoryRequest request,
                                                 @PathVariable("id") Long id) {
         return ResponseEntity.ok(foodService.createCategory(request,id));
+    }
+
+    @PostMapping("/add/{id}")
+    public ResponseEntity<Food> addFood(@RequestBody AddFoodRequest request,
+                                        @PathVariable("id") Long id) {
+        return ResponseEntity.ok(foodService.createFood(request,id));
     }
 }

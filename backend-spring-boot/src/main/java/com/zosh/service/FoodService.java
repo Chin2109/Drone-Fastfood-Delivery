@@ -7,7 +7,7 @@ import com.zosh.request.AddFoodRequest;
 
 public interface FoodService {
 
-//	public Food createFood(AddFoodRequest request, Long id);
+	public Food createFood(AddFoodRequest request, Long id);
 
     public Category createCategory(AddCategoryRequest request, Long id);
 

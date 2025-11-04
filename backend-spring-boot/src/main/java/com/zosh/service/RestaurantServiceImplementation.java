@@ -1,20 +1,20 @@
 package com.zosh.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.zosh.controller.FoodController;
+import com.zosh.model.*;
+import com.zosh.repository.*;
+import com.zosh.response.FoodResponse;
+import com.zosh.response.MenuItemResponse;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.zosh.Exception.RestaurantException;
 import com.zosh.dto.RestaurantDto;
-import com.zosh.model.Address;
-import com.zosh.model.Restaurant;
-import com.zosh.model.User;
-import com.zosh.repository.AddressRepository;
-import com.zosh.repository.RestaurantRepository;
-import com.zosh.repository.UserRepository;
 import com.zosh.request.CreateRestaurantRequest;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Coordinate;
@@ -38,6 +38,12 @@ public class RestaurantServiceImplementation implements RestaurantService {
 
 	@Autowired
 	private GeometryFactory geometryFactory;
+
+	@Autowired
+	private CategoryRepository categoryRepository;
+
+	@Autowired
+	private FoodRepository foodRepository;
 
 	@Override
 	public Restaurant createRestaurant(CreateRestaurantRequest req,User user) {
@@ -127,6 +133,36 @@ public class RestaurantServiceImplementation implements RestaurantService {
 		Restaurant restaurant=findRestaurantById(id);
 		restaurant.setOpen(!restaurant.isOpen());
 		return restaurantRepository.save(restaurant);
+	}
+
+	@Override
+	public List<MenuItemResponse> getMenu(Long id) {
+		Restaurant restaurant = restaurantRepository.findById(id).orElseThrow();
+		List<Category> categories = restaurant.getCategories();
+
+		List<MenuItemResponse> list = new ArrayList<>();
+		for(Category category : categories) {
+			MenuItemResponse response = new MenuItemResponse();
+			response.setCategoryId(category.getId());
+			response.setCategoryName(category.getName());
+
+			List<FoodResponse> foodResponses = new ArrayList<>();
+			for(Food food : category.getFoods()) {
+				FoodResponse fr = new FoodResponse();
+				fr.setName(food.getName());
+				fr.setPrice(food.getPrice());
+				fr.setDescription(food.getDescription());
+				fr.setImages(food.getImages());
+				fr.setAvailable(food.isAvailable());
+
+				foodResponses.add(fr);
+			}
+			response.setFoods(foodResponses);
+
+			list.add(response);
+		}
+
+		return list;
 	}
 
 }

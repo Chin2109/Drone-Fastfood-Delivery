@@ -2,6 +2,8 @@ package com.zosh.controller;
 
 import java.util.List;
 
+import com.zosh.request.CreateRestaurantRequest;
+import com.zosh.response.MenuItemResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,18 @@ public class RestaurantController {
 	
 	@Autowired
 	private UserService userService;
+
+	@PostMapping("/create")
+	public ResponseEntity<Restaurant> createRestaurant(
+			@RequestBody CreateRestaurantRequest req,
+			@RequestHeader("Authorization") String jwt) throws UserException {
+
+		User user = userService.findUserProfileByJwt(jwt);
+
+		System.out.println("----TRUE___-----"+jwt);
+		Restaurant restaurant = restaurantService.createRestaurant(req,user);
+		return ResponseEntity.ok(restaurant);
+	}
 
 
 	@GetMapping("/search")
@@ -47,6 +61,10 @@ public class RestaurantController {
 
 			Restaurant restaurant = restaurantService.findRestaurantById(id);
 			return ResponseEntity.ok(restaurant);
+	}
 
+	@GetMapping("/{id}/menu")
+	public ResponseEntity<List<MenuItemResponse>> getMenu(@PathVariable Long id) {
+		return ResponseEntity.ok(restaurantService.getMenu(id));
 	}
 }
