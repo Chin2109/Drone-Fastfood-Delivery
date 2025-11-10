@@ -25,4 +25,6 @@ public class IngredientsItem {
 	private IngredientCategory category;
 
 	private boolean inStoke=true;
+
+	private Long price;
 }

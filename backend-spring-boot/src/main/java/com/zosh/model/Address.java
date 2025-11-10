@@ -20,12 +20,6 @@ public class Address {
 
 	private String fullName;
 
-	private String streetAddress;
-
-	private String province;
-
-	private String city;
-
 	@Column(columnDefinition = "POINT")
 	@JsonIgnore //ẩn cấu trúc Point phức tạp của jts khỏi quá trình json hóa tự động
 	//--> nó vẫn là kiểu dữ liệu Point, nhưng khi json hóa để giao tiếp, nó sẽ chỉ có dạng json lat và long

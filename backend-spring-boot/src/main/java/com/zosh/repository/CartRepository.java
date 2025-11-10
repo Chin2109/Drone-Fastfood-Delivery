@@ -8,5 +8,5 @@ import com.zosh.model.Cart;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
 
-	 Optional<Cart> findByCustomer_Id(Long userId);
+	 Optional<Cart> findByUser_Id(Long userId);
 }

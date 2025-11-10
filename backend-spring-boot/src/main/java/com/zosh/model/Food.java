@@ -27,9 +27,7 @@ public class Food {
     @ManyToOne(fetch = FetchType.LAZY)
     private Category foodCategory;
 
-    @ElementCollection
-    @Column(length = 1000)
-    private List<String> images;
+    private String image;
 
     private boolean available;
 

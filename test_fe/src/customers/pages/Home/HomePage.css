@@ -1,0 +1,21 @@
+.banner {
+  background-image: url("https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1");
+  background-size: cover; /* Adjust as needed */
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 90vh;
+}
+
+@media only screen and (max-width: 900px) {
+  .banner {
+    height: 40vh;
+  }
+  .cover {
+    height: 40vh;
+  }
+
+  .fadout {
+    bottom: -3rem;
+    height: 20vw;
+  }
+}

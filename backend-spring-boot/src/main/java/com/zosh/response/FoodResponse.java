@@ -9,6 +9,6 @@ public class FoodResponse {
     private String name;
     private String description;
     private Long price;
-    private List<String> images;
+    private String image;
     private boolean available;
 }

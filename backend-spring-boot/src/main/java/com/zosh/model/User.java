@@ -42,4 +42,7 @@ public class User {
 	
 	private String status;
 
+	@JsonIgnore
+	@OneToMany(mappedBy = "user")
+	private List<Cart> carts;
 }

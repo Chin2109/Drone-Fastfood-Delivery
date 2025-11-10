@@ -89,9 +89,9 @@ public class AuthController {
 
 		User savedUser = userRepository.save(createdUser);
 		
-		Cart cart = new Cart();
-		cart.setCustomer(savedUser);
-		Cart savedCart = cartRepository.save(cart);
+//		Cart cart = new Cart();
+//	cart.setCustomer(savedUser);
+//		Cart savedCart = cartRepository.save(cart);
 //		savedUser.setCart(savedCart);
 
 		List<GrantedAuthority> authorities=new ArrayList<>();

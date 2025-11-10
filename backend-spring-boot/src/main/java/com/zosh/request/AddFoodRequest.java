@@ -15,7 +15,7 @@ public class AddFoodRequest {
     private String description;
     private Long price;
     private Long foodCategoryId;
-    private List<String> images;
+    private String image;
     private boolean available;
     private List<IngredientCategoryDTO> ingredientCategoryDTOs;
     private Date creationDate;

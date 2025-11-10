@@ -50,7 +50,7 @@ public class Order {
 	private Address deliveryAddress;
 
 //	@JsonIgnore
-	@OneToMany
+	@OneToMany(mappedBy = "order")
 	private List<OrderItem> items;
 
 	@OneToOne
@@ -58,6 +58,6 @@ public class Order {
 	
 	private int totalItem;
 	
-	private int totalPrice;
+	private Long totalPrice;
 
 }

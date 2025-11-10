@@ -1,24 +1,30 @@
-package com.zosh.service;
-
-import com.zosh.model.Category;
-import com.zosh.model.Food;
-import com.zosh.request.AddCategoryRequest;
-import com.zosh.request.AddFoodRequest;
-
-public interface FoodService {
-
-	public Food createFood(AddFoodRequest request, Long id);
-
-    public Category createCategory(AddCategoryRequest request, Long id);
-
-//	void deleteFood(Long foodId) throws FoodException;
+//package com.zosh.service;
 //
-//	public List<Food> getRestaurantsFood(Long restaurantId,
-//			boolean isVegetarian, boolean isNonveg, boolean isSeasonal,String foodCategory) throws FoodException;
+//import com.zosh.model.Category;
+//import com.zosh.model.Food;
+//import com.zosh.request.AddCategoryRequest;
+//import com.zosh.request.AddFoodRequest;
+//import com.zosh.response.FoodItemResponse;
+//import com.zosh.response.FoodResponse;
 //
-//	public List<Food> searchFood(String keyword);
+//import java.util.List;
 //
-//	public Food findFoodById(Long foodId) throws FoodException;
+//public interface FoodService {
 //
-//	public Food updateAvailibilityStatus(Long foodId) throws FoodException;
-}
+//	public Food createFood(AddFoodRequest request, Long id);
+//
+//    public Category createCategory(AddCategoryRequest request, Long id);
+//
+//    public List<FoodItemResponse> getAllFood();
+//
+////	void deleteFood(Long foodId) throws FoodException;
+////
+////	public List<Food> getRestaurantsFood(Long restaurantId,
+////			boolean isVegetarian, boolean isNonveg, boolean isSeasonal,String foodCategory) throws FoodException;
+////
+////	public List<Food> searchFood(String keyword);
+////
+////	public Food findFoodById(Long foodId) throws FoodException;
+////
+////	public Food updateAvailibilityStatus(Long foodId) throws FoodException;
+//}
