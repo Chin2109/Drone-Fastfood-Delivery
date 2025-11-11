@@ -38,33 +38,34 @@
 //	}
 //
 //
-//	@GetMapping("/search")
-//	public ResponseEntity<List<Restaurant>> findRestaurantByName(
-//			@RequestParam String keyword) {
-//		List<Restaurant> restaurant = restaurantService.searchRestaurant(keyword);
 //
-//		return ResponseEntity.ok(restaurant);
-//	}
-//
-//
-//	@GetMapping()
-//	public ResponseEntity<List<Restaurant>> getAllRestaurants() {
-//
-//		List<Restaurant> restaurants = restaurantService.getAllRestaurant();
-//		return ResponseEntity.ok(restaurants);
-//	}
-//
-//
-//	@GetMapping("/{id}")
-//	public ResponseEntity<Restaurant> findRestaurantById(
-//			@PathVariable Long id) throws RestaurantException {
-//
-//			Restaurant restaurant = restaurantService.findRestaurantById(id);
-//			return ResponseEntity.ok(restaurant);
-//	}
-//
-//	@GetMapping("/{id}/menu")
-//	public ResponseEntity<List<MenuItemResponse>> getMenu(@PathVariable Long id) {
-//		return ResponseEntity.ok(restaurantService.getMenu(id));
-//	}
+////	@GetMapping("/search")
+////	public ResponseEntity<List<Restaurant>> findRestaurantByName(
+////			@RequestParam String keyword) {
+////		List<Restaurant> restaurant = restaurantService.searchRestaurant(keyword);
+////
+////		return ResponseEntity.ok(restaurant);
+////	}
+////
+////
+////	@GetMapping()
+////	public ResponseEntity<List<Restaurant>> getAllRestaurants() {
+////
+////		List<Restaurant> restaurants = restaurantService.getAllRestaurant();
+////		return ResponseEntity.ok(restaurants);
+////	}
+////
+////
+////	@GetMapping("/{id}")
+////	public ResponseEntity<Restaurant> findRestaurantById(
+////			@PathVariable Long id) throws RestaurantException {
+////
+////			Restaurant restaurant = restaurantService.findRestaurantById(id);
+////			return ResponseEntity.ok(restaurant);
+////	}
+////
+////	@GetMapping("/{id}/menu")
+////	public ResponseEntity<List<MenuItemResponse>> getMenu(@PathVariable Long id) {
+////		return ResponseEntity.ok(restaurantService.getMenu(id));
+////	}
 //}

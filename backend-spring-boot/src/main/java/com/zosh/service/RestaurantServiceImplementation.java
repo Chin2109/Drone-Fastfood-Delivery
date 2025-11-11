@@ -7,6 +7,7 @@
 //import com.zosh.controller.FoodController;
 //import com.zosh.model.*;
 //import com.zosh.repository.*;
+//import com.zosh.request.Form1;
 //import com.zosh.response.FoodResponse;
 //import com.zosh.response.MenuItemResponse;
 //import org.locationtech.jts.geom.Coordinate;
@@ -46,6 +47,11 @@
 //	private FoodRepository foodRepository;
 //
 //	@Override
+//	public void registerRestaurant_1(Form1 form) {
+//
+//	}
+//
+//	@Override
 //	public Restaurant createRestaurant(CreateRestaurantRequest req,User user) {
 //		Address address=new Address();
 //		address.setFullName(req.getAddress().getFullName());
@@ -61,12 +67,11 @@
 //		Address savedAddress = addressRepository.save(address);
 //		Restaurant restaurant = new Restaurant();
 //		restaurant.setAddress(savedAddress);
-//		restaurant.setMobile(req.getMobile());
+//		restaurant.setRestaurantPhoneNumber(req.getMobile());
 //		restaurant.setDescription(req.getDescription());
 //		restaurant.setImage(req.getImage());
 //		restaurant.setName(req.getName());
 //		restaurant.setOpeningHours(req.getOpeningHours());
-//		restaurant.setRegistrationDate(req.getRegistrationDate());
 //		restaurant.setOwner(user);
 //		Restaurant savedRestaurant = restaurantRepository.save(restaurant);
 //

@@ -37,7 +37,7 @@ public class User {
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
 	private List<Order> orders;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "" ,cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Address> addresses = new ArrayList<>();
 	
 	private String status;
