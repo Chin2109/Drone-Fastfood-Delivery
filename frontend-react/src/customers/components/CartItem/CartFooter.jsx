@@ -1,4 +1,4 @@
-export const CartFooter = ({ formattedTotal }) => (
+export const CartFooter = ({ formattedTotal, onClick }) => (
   <footer className="p-4 border-t border-gray-200 sticky bottom-0 bg-white shadow-2xl">
     <div className="flex justify-between items-center mb-4">
       <p className="text-lg font-bold text-gray-900">Tổng cộng</p>

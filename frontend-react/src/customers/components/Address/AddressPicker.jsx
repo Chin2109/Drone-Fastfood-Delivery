@@ -1,17 +1,17 @@
-import { useEffect, useRef, useState } from "react";
 import goongjs from "@goongmaps/goong-js";
 import "@goongmaps/goong-js/dist/goong-js.css";
+import { useEffect, useRef, useState } from "react";
 
-const RESTAURANT = {
-  name: "Nhà hàng mẫu - Linh Food",
-  lat: 10.762622,
-  lng: 106.660172,
-  address: "227 Nguyễn Văn Cừ, P.4, Q.5, TP.HCM",
-};
-
-export default function AddressPicker({ onAddressChange }) {
+export default function AddressPicker({
+  onAddressChange,
+  restaurant,
+  onLocationSelected,
+}) {
   const GOONG_MAP_KEY = process.env.REACT_APP_GOONG_MAP_KEY;
   const GOONG_RS_KEY = process.env.REACT_APP_GOONG_RS_KEY;
+
+  const lngRestaurant = restaurant?.location?.coordinates[0];
+  const latRestaurant = restaurant?.location?.coordinates[1];
 
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
@@ -22,39 +22,34 @@ export default function AddressPicker({ onAddressChange }) {
   const [suggestions, setSuggestions] = useState([]);
 
   const [addressFull, setAddressFull] = useState("");
-  const [province, setProvince] = useState("");
-  const [district, setDistrict] = useState("");
-  const [ward, setWard] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
 
   const [useCurrentLocation, setUseCurrentLocation] = useState(false);
-  const [routeInfo, setRouteInfo] = useState(null);
+  const [droneDistance, setDroneDistance] = useState(null);
 
-  // ================= MAP INIT =================
   useEffect(() => {
     if (!GOONG_MAP_KEY) {
       console.error("⚠️ Missing REACT_APP_GOONG_MAP_KEY");
       return;
     }
 
+    if (!restaurant || !restaurant.location || !restaurant.location.coordinates)
+      return;
+
     goongjs.accessToken = GOONG_MAP_KEY;
     const map = new goongjs.Map({
       container: mapContainer.current,
       style: "https://tiles.goong.io/assets/goong_map_web.json",
-      center: [RESTAURANT.lng, RESTAURANT.lat],
+      center: [lngRestaurant, latRestaurant],
       zoom: 13,
     });
     mapRef.current = map;
     map.addControl(new goongjs.NavigationControl(), "bottom-right");
 
     const rMarker = new goongjs.Marker({ color: "red" })
-      .setLngLat([RESTAURANT.lng, RESTAURANT.lat])
-      .setPopup(
-        new goongjs.Popup().setHTML(
-          `<b>${RESTAURANT.name}</b><br/>${RESTAURANT.address}`
-        )
-      )
+      .setLngLat([lngRestaurant, latRestaurant])
+
       .addTo(map);
     setRestaurantMarker(rMarker);
 
@@ -63,77 +58,61 @@ export default function AddressPicker({ onAddressChange }) {
         map.remove();
       } catch {}
     };
-  }, []);
+  }, [restaurant]);
 
-  // ================= HELPER =================
-  const decodePolyline = (encoded) => {
-    let points = [];
-    let index = 0,
-      len = encoded.length;
-    let lat = 0,
-      lng = 0;
-    while (index < len) {
-      let b,
-        shift = 0,
-        result = 0;
-      do {
-        b = encoded.charCodeAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      const dlat = result & 1 ? ~(result >> 1) : result >> 1;
-      lat += dlat;
-      shift = 0;
-      result = 0;
-      do {
-        b = encoded.charCodeAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      const dlng = result & 1 ? ~(result >> 1) : result >> 1;
-      lng += dlng;
-      points.push([lat / 1e5, lng / 1e5]);
-    }
-    return points;
+  const calculateDroneDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // bán kính Trái Đất (km)
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // km
   };
 
-  const drawRoute = async (customerLat, customerLng) => {
-    if (!mapRef.current) return;
+  const drawDroneLine = (customerLat, customerLng) => {
     const map = mapRef.current;
-    const origin = `${RESTAURANT.lat},${RESTAURANT.lng}`;
-    const destination = `${customerLat},${customerLng}`;
-    const url = `https://rsapi.goong.io/Direction?origin=${origin}&destination=${destination}&vehicle=car&api_key=${GOONG_RS_KEY}`;
+    if (!map) return;
 
-    const res = await fetch(url);
-    const data = await res.json();
-    const validRoute = data.routes?.[0];
-    if (!validRoute) return;
+    // Xóa route cũ
+    if (map.getLayer("drone-line")) map.removeLayer("drone-line");
+    if (map.getSource("drone-line")) map.removeSource("drone-line");
 
-    const leg = validRoute.legs[0];
-    setRouteInfo({
-      distance: leg.distance?.text,
-      duration: leg.duration?.text,
-    });
+    const lineCoords = [
+      [lngRestaurant, latRestaurant],
+      [customerLng, customerLat],
+    ];
 
-    const decoded = decodePolyline(validRoute.overview_polyline.points);
-    const coords = decoded.map(([la, ln]) => [ln, la]);
-
-    if (map.getLayer("route")) map.removeLayer("route");
-    if (map.getSource("route")) map.removeSource("route");
-
-    map.addSource("route", {
+    map.addSource("drone-line", {
       type: "geojson",
       data: {
         type: "Feature",
-        geometry: { type: "LineString", coordinates: coords },
+        geometry: { type: "LineString", coordinates: lineCoords },
       },
     });
     map.addLayer({
-      id: "route",
+      id: "drone-line",
       type: "line",
-      source: "route",
-      paint: { "line-color": "#2563eb", "line-width": 5 },
+      source: "drone-line",
+      paint: {
+        "line-color": "#00bcd4",
+        "line-width": 4,
+        "line-dasharray": [2, 2],
+      },
     });
+
+    const distance = calculateDroneDistance(
+      latRestaurant,
+      lngRestaurant,
+      customerLat,
+      customerLng
+    ).toFixed(2);
+
+    setDroneDistance(distance);
   };
 
   const reverseGeocode = async (latVal, lngVal) => {
@@ -144,24 +123,17 @@ export default function AddressPicker({ onAddressChange }) {
     if (data.status === "OK") {
       const r = data.results[0];
       setAddressFull(r.formatted_address);
-      const c = r.compound || {};
-      setProvince(c.province || "");
-      setDistrict(c.district || "");
-      setWard(c.commune || c.ward || "");
       setLat(latVal);
       setLng(lngVal);
       onAddressChange?.({
         full: r.formatted_address,
-        province: c.province,
-        district: c.district,
-        ward: c.commune || c.ward,
         lat: latVal,
         lng: lngVal,
       });
     }
   };
 
-  const placeCustomerMarker = (lngVal, latVal, openPopup = false) => {
+  const placeCustomerMarker = async (lngVal, latVal) => {
     const map = mapRef.current;
     if (customerMarker) customerMarker.remove();
 
@@ -169,15 +141,37 @@ export default function AddressPicker({ onAddressChange }) {
       .setLngLat([lngVal, latVal])
       .addTo(map);
 
+    const distance = calculateDroneDistance(
+      latRestaurant,
+      lngRestaurant,
+      latVal,
+      lngVal
+    ).toFixed(2); // trả về string, convert sang number
+
     newMarker.on("dragend", async () => {
       const { lng, lat } = newMarker.getLngLat();
       await reverseGeocode(lat, lng);
-      drawRoute(lat, lng);
+      drawDroneLine(lat, lng);
+      if (onLocationSelected) {
+        onLocationSelected({
+          street: addressFull || "Địa chỉ tạm",
+          location: { type: "Point", coordinates: [lng, lat] },
+          distance: Number(distance),
+        });
+      }
     });
 
     setCustomerMarker(newMarker);
-    map.flyTo({ center: [lngVal, latVal], zoom: 16 });
-    if (openPopup) newMarker.togglePopup();
+    map.flyTo({ center: [lngVal, latVal], zoom: 15 });
+    drawDroneLine(latVal, lngVal);
+
+    if (onLocationSelected) {
+      onLocationSelected({
+        street: addressFull || "Địa chỉ tạm",
+        location: { type: "Point", coordinates: [lngVal, latVal] },
+        distance: Number(distance),
+      });
+    }
   };
 
   const handleUseCurrentLocation = () => {
@@ -185,9 +179,8 @@ export default function AddressPicker({ onAddressChange }) {
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
-        placeCustomerMarker(longitude, latitude, true);
+        placeCustomerMarker(longitude, latitude);
         await reverseGeocode(latitude, longitude);
-        drawRoute(latitude, longitude);
       },
       (err) => {
         alert("Không lấy được vị trí");
@@ -222,17 +215,15 @@ export default function AddressPicker({ onAddressChange }) {
     const result = data.result;
     const { lat: rlat, lng: rlng } = result.geometry.location;
     setAddressFull(result.formatted_address);
-    placeCustomerMarker(rlng, rlat, true);
-    drawRoute(rlat, rlng);
+    placeCustomerMarker(rlng, rlat);
     reverseGeocode(rlat, rlng);
   };
 
   return (
     <div className="space-y-3 text-black">
-      {routeInfo && (
+      {droneDistance && (
         <p className="text-sm font-medium text-green-600 mb-4">
-          {" "}
-          {routeInfo.duration || ""} (cách {routeInfo.distance || ""}){" "}
+          🚁 Khoảng cách đường chim bay: {droneDistance} km
         </p>
       )}
       <div className="flex gap-3">
@@ -289,19 +280,6 @@ export default function AddressPicker({ onAddressChange }) {
         className="w-full p-2 border rounded-lg bg-gray-50"
         placeholder="Địa chỉ đầy đủ"
       />
-      <div className="grid grid-cols-2 gap-2">
-        <input value={ward} readOnly className="p-2 border rounded-lg" />
-        <input value={district} readOnly className="p-2 border rounded-lg" />
-      </div>
-      <input
-        value={province}
-        readOnly
-        className="w-full p-2 border rounded-lg"
-      />
-      <div className="grid grid-cols-2 gap-2">
-        <input value={lat} readOnly className="p-2 border rounded-lg" />
-        <input value={lng} readOnly className="p-2 border rounded-lg" />
-      </div>
     </div>
   );
 }

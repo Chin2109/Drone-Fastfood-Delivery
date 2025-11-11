@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { getMenuItemDetail } from "../../../State/Customers/Menu/menu.action";
 import AddToCartButton from "../../components/Product/AddToCartButton";
 import ProductImageInfo from "../../components/Product/ProductImageInfo";
-import SpecialInstruction from "../../components/Product/SpecialInstruction";
 import ToppingGroup from "../../components/Product/ToppingGroup";
 
 const ProductDetail = () => {
@@ -93,13 +92,6 @@ const ProductDetail = () => {
           errorMessage={errors[group.toppingGroupId]}
         />
       ))}
-
-      <SpecialInstruction
-        expanded={expanded}
-        onToggle={() => setExpanded(!expanded)}
-        notes={notes}
-        setNotes={setNotes}
-      />
 
       <AddToCartButton
         quantity={quantity}

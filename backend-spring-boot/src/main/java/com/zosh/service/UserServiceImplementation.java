@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.mysql.cj.x.protobuf.Mysqlx;
 import com.zosh.domain.USER_ROLE;
+import com.zosh.request.LoginRequest;
 import com.zosh.request.RegisterUserRequest;
 import com.zosh.response.RegisterUserResponse;
 import org.springframework.mail.SimpleMailMessage;
@@ -52,60 +53,81 @@ public class UserServiceImplementation implements UserService {
 		User user = new User();
 		user.setEmail(request.getEmail());
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
-		user.setRole(USER_ROLE.ROLE_CUSTOMER);
+		user.setRole(USER_ROLE.customer);
 
 		return userRepository.save(user);
 	}
 
-
-	@Override
-	public User findUserProfileByJwt(String jwt) throws UserException {
-		String email=jwtProvider.getEmailFromJwtToken(jwt);
-		
-		
-		User user = userRepository.findByEmail(email);
-		
-		if(user==null) {
-			throw new UserException("user not exist with email "+email);
+	public User login(LoginRequest request) {
+		Optional<User> user = userRepository.findByEmail(request.getEmail());
+		if(user.isEmpty()) {
+			throw new RuntimeException("invalid email or password");
 		}
-//		System.out.println("email user "+user.get().getEmail());
-		return user;
-	}
-
-	@Override
-	public List<User> findAllUsers() {
-		// TODO Auto-generated method stub
-		return userRepository.findAll();
-	}
-
-	@Override
-	public List<User> getPenddingRestaurantOwner() {
-		
-		return userRepository.getPenddingRestaurantOwners();
-	}
-	
-	@Override
-	public User findUserByEmail(String username) throws UserException {
-		
-		User user=userRepository.findByEmail(username);
-		
-		if(user!=null) {
-			
-			return user;
+		if(passwordEncoder.matches(user.get().getPassword(),request.getPassword())) {
+			throw new RuntimeException("invalid email or password");
 		}
-		
-		throw new UserException("user not exist with username "+username);
+
+		return user.get();
 	}
 
-	@Override
-	public User updateUser(Long id, User user) {
-		User existinguser = userRepository.findById(id).orElseThrow();
+	public User getProfile(Long id) {
+		Optional<User> user = userRepository.findById(id);
+		if(user.isEmpty()) {
+			throw new RuntimeException();
+		}
 
-		existinguser.setPassword(passwordEncoder.encode(user.getPassword()));
-		existinguser.setFullName(user.getFullName());
-
-		userRepository.save(existinguser);
-
-		return existinguser;
+		return user.get();
 	}
+
+//
+//	@Override
+//	public User findUserProfileByJwt(String jwt) throws UserException {
+//		String email=jwtProvider.getEmailFromJwtToken(jwt);
+//
+//
+//		User user = userRepository.findByEmail(email);
+//
+//		if(user==null) {
+//			throw new UserException("user not exist with email "+email);
+//		}
+////		System.out.println("email user "+user.get().getEmail());
+//		return user;
+//	}
+//
+//	@Override
+//	public List<User> findAllUsers() {
+//		// TODO Auto-generated method stub
+//		return userRepository.findAll();
+//	}
+//
+//	@Override
+//	public List<User> getPenddingRestaurantOwner() {
+//
+//		return userRepository.getPenddingRestaurantOwners();
+//	}
+//
+//	@Override
+//	public User findUserByEmail(String username) throws UserException {
+//
+//		User user=userRepository.findByEmail(username);
+//
+//		if(user!=null) {
+//
+//			return user;
+//		}
+//
+//		throw new UserException("user not exist with username "+username);
+//	}
+//
+//	@Override
+//	public User updateUser(Long id, User user) {
+//		User existinguser = userRepository.findById(id).orElseThrow();
+//
+//		existinguser.setPassword(passwordEncoder.encode(user.getPassword()));
+//		existinguser.setFullName(user.getFullName());
+//
+//		userRepository.save(existinguser);
+//
+//		return existinguser;
+//	}
 }

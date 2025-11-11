@@ -16,16 +16,16 @@ const PaymentSuccess = () => {
   }, []);
 
   return (
-    <div className="min-h-screen  px-5">
+    <div className="min-h-screen bg-white  px-5">
       <div className="flex flex-col items-center justify-center h-[90vh]">
-        <div className="box w-full lg:w-1/4 flex flex-col items-center rounded-md">
+        <div className="box w-full bg-green-700 lg:w-1/4 flex flex-col items-center rounded-md">
           <TaskAltIcon sx={{ fontSize: "5rem", color: green[600] }} />
-          <h1 className="py-5 text-2xl font-semibold">Order Success !</h1>
-          <p className="py-3 text-center text-gray-400">
-            Thank you for choosing our restaurant! We appreciate your order.
+          <h1 className="py-5 text-2xl font-semibold">Thanh toán thành công !</h1>
+          <p className="py-3 text-center text-white">
+            Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.
           </p>
-          <p className="py-2 text-center text-gray-200 text-lg">
-            Have A Grate Day !
+          <p className="py-2 text-white text-center text-gray-200 text-lg">
+            Chúc bạn 1 ngày tốt lành !
           </p>
           <Button
             variant="contained"
@@ -33,7 +33,7 @@ const PaymentSuccess = () => {
             sx={{ margin: "1rem 0rem" }}
             onClick={navigateToHome}
           >
-            Go To Home
+            Trở về trang chủ
           </Button>
         </div>
       </div>

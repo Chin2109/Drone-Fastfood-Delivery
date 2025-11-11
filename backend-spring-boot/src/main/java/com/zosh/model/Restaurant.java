@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import com.zosh.domain.RestaurantStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -77,5 +78,7 @@ public class Restaurant {
 
     @OneToMany(mappedBy = "restaurant")
     List<RestaurantImage> restaurantImages;
+
+    private RestaurantStatus status;
 }
 

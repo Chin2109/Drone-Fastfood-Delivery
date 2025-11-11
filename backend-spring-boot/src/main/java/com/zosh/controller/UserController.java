@@ -50,19 +50,21 @@ public class UserController {
 		), HttpStatus.CREATED);
 	}
 
-	@GetMapping("/profile")
-	public ResponseEntity<User> getUserProfileHandler(@RequestHeader("Authorization") String jwt) throws UserException {
-
-		User user = userService.findUserProfileByJwt(jwt);
-		user.setPassword(null);
-
-		return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
+	@GetMapping("/get-profile/{id}")
+	public ResponseEntity<?> getProfile(@PathVariable("id") Long id) {
+		User user = userService.getProfile(id);
+		return new ResponseEntity<>(Map.of(
+				"message", "Taken successfully",
+				"data", Map.of(
+						"id", user.getId(),
+						"email", user.getEmail(),
+						"phone", null,
+						"isActive", true,
+						"roles", List.of(user.getRole())
+				)
+		), HttpStatus.CREATED);
 	}
 
-	@PutMapping("/{id}")
-	public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody User user) {
-		return ResponseEntity.ok(userService.updateUser(id, user));
-	}
 
 
 }

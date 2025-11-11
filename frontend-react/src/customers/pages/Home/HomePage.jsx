@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllMenuItems } from "../../../State/Customers/Menu/menu.action";
 import MenuItemCard from "../../components/MenuItem/MenuItemCard";
-import NewAddress from "../../components/Address/NewAddressModal";
 
 const HomePage = () => {
   const dispatch = useDispatch();
@@ -66,8 +65,6 @@ const HomePage = () => {
             Phạm Hùng, X.Bình Hưng, TP.Hồ Chí Minh, 70000, Vietnam
           </span>
         </Typography>
-
-        <NewAddress />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {menuItems.map((item, index) => (

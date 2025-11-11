@@ -17,20 +17,5 @@ public class SupperAdminController {
 	
 	@Autowired
 	private UserService userService;
-	
-	@GetMapping("/api/customers")
-	public ResponseEntity<List<User>> getAllCustomers() {
-		
-		List<User> users =userService.findAllUsers();
-		
-		return new ResponseEntity<>(users,HttpStatus.ACCEPTED);
 
-	}
-	
-	@GetMapping("/api/pending-customers")
-	public ResponseEntity<List<User>> getPenddingRestaurantUser(){
-		List<User> users=userService.getPenddingRestaurantOwner();
-		return new ResponseEntity<List<User>>(users,HttpStatus.ACCEPTED);
-		
-	}
 }

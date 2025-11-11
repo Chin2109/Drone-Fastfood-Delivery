@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   getAllCartItems,
   removeCartItem,
@@ -9,15 +9,24 @@ import {
 import { CartFooter } from "../../components/CartItem/CartFooter";
 import { CartHeader } from "../../components/CartItem/CartHeader";
 import CartItemCard from "../../components/CartItem/CartItemCard";
+import { useCheckRouter } from "../../util/checkRouter";
 import { formatCurrency } from "../../util/formartCurrency";
 const Cart = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const hide = useCheckRouter("checkout");
+
   const { id } = useParams();
   const { jwt } = useSelector((state) => state.auth);
   const { cart } = useSelector((state) => state.cart);
   useEffect(() => {
     dispatch(getAllCartItems({ merchantId: id, jwt: jwt }));
   }, []);
+
+  const navigateToCheckout = () => {
+    navigate(`/checkout/${id}`);
+  };
 
   const handleQuantityChange = async (cartItemId, delta, currentQuantity) => {
     if (!cartItemId) return;
@@ -47,15 +56,17 @@ const Cart = () => {
 
   return (
     <div className="flex justify-center min-w-screen mx-auto bg-white w-full min-h-screen flex flex-col font-sans shadow-xl">
-      <CartHeader />
+      {!hide && <CartHeader />}
 
       <main className="flex-grow p-4 overflow-y-auto">
         {/* Tên quán */}
-        <section className="mb-4">
-          <h2 className="text-xl font-bold text-gray-800">
-            {cart?.data?.merchantName}
-          </h2>
-        </section>
+        {!hide && (
+          <section className="mb-4">
+            <h2 className="text-xl font-bold text-gray-800">
+              {cart?.data?.merchantName}
+            </h2>
+          </section>
+        )}
 
         {cart?.data?.items.map((item) => (
           <section>
@@ -82,14 +93,21 @@ const Cart = () => {
               {formattedTotal}
             </p>
           </div>
-          <p className="text-sm text-gray-500 mt-1">
-            Phí vận chuyển sẽ xuất hiện sau khi bạn xem lại đơn hàng
-          </p>
+          {!hide && (
+            <p className="text-sm text-gray-500 mt-1">
+              Phí vận chuyển sẽ xuất hiện sau khi bạn xem lại đơn hàng
+            </p>
+          )}
         </section>
       </main>
 
       {/* Component CartFooter */}
-      <CartFooter formattedTotal={formattedTotal} />
+      {!hide && (
+        <CartFooter
+          formattedTotal={formattedTotal}
+          onClick={navigateToCheckout}
+        />
+      )}
     </div>
   );
 };
