@@ -12,7 +12,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query("SELECT u FROM User u Where u.status='PENDING'")
 	public List<User> getPenddingRestaurantOwners();
 	
-	public User findByEmail(String username);
+	public Optional<User> findByEmail(String email);
 
 //	public Optional<User> findById(Long id);
 }

@@ -6,7 +6,6 @@ import lombok.Getter;
 
 
 public abstract class PaymentDTO {
-
     // THAY ĐỔI: Thêm @Getter để Jackson có thể đọc các trường
     @Getter
     @Builder

@@ -2,6 +2,7 @@ package com.zosh.controller;
 
 
 import com.zosh.domain.USER_ROLE;
+import com.zosh.request.RegisterUserRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -36,9 +37,10 @@ import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
 	private UserRepository userRepository;
@@ -62,54 +64,6 @@ public class AuthController {
 		this.customUserDetails = customUserDetails;
 		this.cartRepository=cartRepository;
 		this.userService=userService;
-
-	}
-
-	@PostMapping("/signup")
-	public ResponseEntity<AuthResponse> createUserHandler(@Valid @RequestBody User user) throws UserException {
-
-		String email = user.getEmail();
-		String password = user.getPassword();
-		String fullName = user.getFullName();
-		USER_ROLE role=user.getRole();
-
-		User isEmailExist = userRepository.findByEmail(email);
-
-		if (isEmailExist!=null) {
-
-			throw new UserException("Email Is Already Used With Another Account");
-		}
-
-		// Create new user
-		User createdUser = new User();
-		createdUser.setEmail(email);
-		createdUser.setFullName(fullName);
-		createdUser.setPassword(passwordEncoder.encode(password));
-		createdUser.setRole(role);
-
-		User savedUser = userRepository.save(createdUser);
-		
-//		Cart cart = new Cart();
-//	cart.setCustomer(savedUser);
-//		Cart savedCart = cartRepository.save(cart);
-//		savedUser.setCart(savedCart);
-
-		List<GrantedAuthority> authorities=new ArrayList<>();
-
-		authorities.add(new SimpleGrantedAuthority(role.toString()));
-
-
-		Authentication authentication = new UsernamePasswordAuthenticationToken(email, password,authorities);
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-
-		String token = jwtProvider.generateToken(authentication);
-
-		AuthResponse authResponse = new AuthResponse();
-		authResponse.setJwt(token);
-		authResponse.setMessage("Register Success");
-		authResponse.setRole(savedUser.getRole());
-
-		return new ResponseEntity<>(authResponse, HttpStatus.OK);
 
 	}
 

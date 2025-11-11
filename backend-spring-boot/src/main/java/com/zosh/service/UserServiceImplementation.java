@@ -1,14 +1,19 @@
 package com.zosh.service;
 
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import com.mysql.cj.x.protobuf.Mysqlx;
+import com.zosh.domain.USER_ROLE;
+import com.zosh.request.RegisterUserRequest;
+import com.zosh.response.RegisterUserResponse;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +43,20 @@ public class UserServiceImplementation implements UserService {
 		this.javaMailSender=javaMailSender;
 		
 	}
+
+	public User registerUser(RegisterUserRequest request) {
+		if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+			throw new RuntimeException("Email đã được đăng ký.");
+		}
+
+		User user = new User();
+		user.setEmail(request.getEmail());
+		user.setPassword(passwordEncoder.encode(request.getPassword()));
+		user.setRole(USER_ROLE.ROLE_CUSTOMER);
+
+		return userRepository.save(user);
+	}
+
 
 	@Override
 	public User findUserProfileByJwt(String jwt) throws UserException {

@@ -27,6 +27,9 @@ public class RestaurantServiceImplementation implements RestaurantService {
 	private AddressRepository addressRepository;
 
 	@Autowired
+	private AddressService addressService;
+
+	@Autowired
 	private UserService userService;
 
 	@Autowired
@@ -51,8 +54,14 @@ public class RestaurantServiceImplementation implements RestaurantService {
 	public void registerRestaurant_1(Form1 form) {
 		List<DroneHub> hubs = droneHubRepository.findAll();
 		for(DroneHub hub : hubs) {
+			double km = addressService.calculateDistanceKm(hub.getAddress().getFullName(),form.getAddress());
+			if(km > 5) {
+				return;
+			}
 
 		}
+
+
 	}
 
 	@Override

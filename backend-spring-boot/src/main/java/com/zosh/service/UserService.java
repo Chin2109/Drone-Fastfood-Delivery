@@ -4,8 +4,11 @@ import java.util.List;
 
 import com.zosh.Exception.UserException;
 import com.zosh.model.User;
+import com.zosh.request.RegisterUserRequest;
+import com.zosh.response.RegisterUserResponse;
 
 public interface UserService {
+	public User registerUser(RegisterUserRequest request);
 
 	public User findUserProfileByJwt(String jwt) throws UserException;
 	

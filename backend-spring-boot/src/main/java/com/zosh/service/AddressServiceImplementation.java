@@ -106,7 +106,7 @@ public class AddressServiceImplementation implements AddressService {
         throw new Exception("Khong tim thay toa do cua dia chi: " + fullAddress);
     }
 
-    public String getFullAddress(double lat, double lng) throws Exception {
+    public String getFullAddress(double lat, double lng) {
         String uri = String.format("?latlng=%s,%s&api_key=%s",lat,lng,apiKey);
 
         GeocodingService.GeocodingResult response = webClient.get()
@@ -118,12 +118,11 @@ public class AddressServiceImplementation implements AddressService {
         if(response != null && !response.getResults().isEmpty()) {
             return response.getResults().get(0).getFormatted_address();
         }
-
-        throw new Exception("Khong tim thay dia chi cua toa do " + lat + " " + lng);
+        return "none address found";
     }
 
-    //không cần tạo đối tượng, chủ yếu để tính toán
-    public static double calculateDistanceKm(double lat1, double lng1, double lat2, double lng2) {
+    //nếu static thì không cần tạo đối tượng, chủ yếu để tính toán
+    public double calculateDistanceKm(double lat1, double lng1, double lat2, double lng2) {
         // 1. Chuyển đổi độ sang radian
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lng2 - lng1);
@@ -173,7 +172,6 @@ public class AddressServiceImplementation implements AddressService {
 
         }
 
-
-
+        return 0.0;
     }
 }
