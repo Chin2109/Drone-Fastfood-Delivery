@@ -8,12 +8,20 @@ import com.zosh.model.Restaurant;
 import com.zosh.model.User;
 import com.zosh.request.CreateRestaurantRequest;
 import com.zosh.request.Form1;
+import com.zosh.request.RestaurantRegisterDTO;
 import com.zosh.response.MenuItemResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface RestaurantService {
-	public void registerRestaurant_1(Form1 form);
+	public Restaurant createMerchant(
+			RestaurantRegisterDTO form,
+			List<MultipartFile> identityImages,
+			List<MultipartFile> businessImages,
+			List<MultipartFile> kitchenImages,
+			List<MultipartFile> otherImages
+	);
 
-	public Restaurant createRestaurant(CreateRestaurantRequest req,User user);
+//	public Restaurant createRestaurant(CreateRestaurantRequest req,User user);
 
 //	public Restaurant updateRestaurant(Long restaurantId, CreateRestaurantRequest updatedRestaurant)
 //			throws RestaurantException;

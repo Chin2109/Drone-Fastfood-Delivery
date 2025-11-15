@@ -15,6 +15,8 @@ import Profile from "../customers/pages/Profile/Profile";
 import Restaurant from "../customers/pages/Restaurant/Restaurant";
 import Verify from "../customers/components/Verify/Verify";
 import ProductDetail from "../customers/pages/Product-detail/Product-detail";
+import CreateMerchantForm from "../customers/pages/Merchant/CreateMerchantForm";
+import Partner from "../customers/pages/Partner/Partner";
 
 const CustomerRoutes = () => {
   return (
@@ -28,14 +30,13 @@ const CustomerRoutes = () => {
         <Route exact path="/login" element={<LoginForm />} />
         <Route exact path="/register" element={<RegistrationForm />} />
         <Route exact path="/verify" element={<Verify />} />
+        <Route exact path="/partner" element={<Partner />} />
 
         <Route exact path="/restaurant/:id" element={<Restaurant />} />
 
-        <Route
-          exact
-          path="product-detail/:id"
-          element={<ProductDetail />}
-        />
+        <Route exact path="/merchant" element={<CreateMerchantForm />} />
+
+        <Route exact path="product-detail/:id" element={<ProductDetail />} />
 
         <Route exact path="checkout/:id" element={<Checkout />} />
 

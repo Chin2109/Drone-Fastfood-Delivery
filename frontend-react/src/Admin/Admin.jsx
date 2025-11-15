@@ -55,11 +55,11 @@ const Admin = () => {
     <div>
       <AdminNavbar handleOpenSideBar={handleOpenSideBar} />
       <div className="lg:flex justify-between">
-        <div className="">
+        {/* <div className="">
           <AdminSidebar handleClose={handleCloseSideBar} open={openSideBar} />
-        </div>
+        </div> */}
 
-        <div className="lg:w-[80vw]">
+        <div className="w-full">
           <Routes>
             <Route path="/" element={<RestaurantDashboard />} />
             <Route path="/orders" element={<RestaurantsOrder />} />

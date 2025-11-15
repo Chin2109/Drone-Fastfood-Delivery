@@ -3,6 +3,7 @@ package com.zosh.controller;
 import com.zosh.config.JwtProvider;
 import com.zosh.request.RegisterUserRequest;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +19,11 @@ import com.zosh.model.User;
 import com.zosh.service.UserService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -52,17 +55,22 @@ public class UserController {
 
 	@GetMapping("/get-profile/{id}")
 	public ResponseEntity<?> getProfile(@PathVariable("id") Long id) {
+		log.info("Received request for user profile with ID: {}", id);
 		User user = userService.getProfile(id);
-		return new ResponseEntity<>(Map.of(
-				"message", "Taken successfully",
-				"data", Map.of(
-						"id", user.getId(),
-						"email", user.getEmail(),
-						"phone", null,
-						"isActive", true,
-						"roles", List.of(user.getRole())
+
+		Map<String, Object> data = new HashMap<>();
+		data.put("id", user.getId());
+		data.put("email", user.getEmail());
+		data.put("phone", null); // OK
+		data.put("isActive", true);
+		data.put("roles", List.of(user.getRole()));
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(
+				Map.of(
+						"message", "Taken successfully",
+						"data", data
 				)
-		), HttpStatus.CREATED);
+		);
 	}
 
 

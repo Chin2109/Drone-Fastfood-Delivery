@@ -51,7 +51,7 @@ export default function Checkout() {
 
     // Build payload cho API createOrder
     const orderPayload = {
-      userId: user?.id, // lấy từ state auth nếu cần
+      userId: user?.data?.id, // lấy từ state auth nếu cần
       merchantId: id,
       temporaryAddress: selectedAddress,
       orderItems:

@@ -1,5 +1,6 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import "./App.css";
+
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./State/Authentication/Action";
@@ -10,16 +11,14 @@ import darkTheme from "./theme/DarkTheme";
 function App() {
   const dispatch = useDispatch();
   const { auth } = useSelector((store) => store);
-  const user = useSelector(state => state.auth?.user)
+  const user = useSelector((state) => state.auth?.user);
   const jwt = localStorage.getItem("jwt");
 
   useEffect(() => {
-
     if (jwt) {
-      dispatch(getUser({id: user?.id, jwt}));
-
+      dispatch(getUser({ id: user?.id, jwt }));
     }
-  }, []);
+  }, [auth.jwt]);
 
   useEffect(() => {
     if (auth.user?.role == "ROLE_RESTAURANT_OWNER") {

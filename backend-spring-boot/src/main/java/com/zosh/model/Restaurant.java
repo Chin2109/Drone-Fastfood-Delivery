@@ -20,11 +20,11 @@ public class Restaurant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @OneToOne
     private User owner;
     private String representativeName; // Tên người đại diện
-    
+
     private String name; // Tên nhà hàng
     private String description;
 
@@ -42,14 +42,13 @@ public class Restaurant {
 
 //    @ElementCollection vì đang dùng List, nếu không muốn JPA tạo ra từng table riêng thì phải z để tạo ra bảng
 //    @Column(length = 1000)
-    private String image;
     private boolean open;
 
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
     private List<Category> categories = new ArrayList<>();
 
     private String businessModel; // 1. Mô hình kinh doanh: công ty/hkd/cá nhân
-    private static int dailyOrderVolume; // Số lượng đơn hàng trong 1 ngày
+    private int dailyOrderVolume; // Số lượng đơn hàng trong 1 ngày
     private String registrationType; // 2. Hình thức đăng ký: đk nhà hàng mới
     private String legalBusinessName; // 4. Tên đăng ký kinh doanh đầy đủ
     private String businessRegistrationCode; // 5. Mã số doanh nghiệp

@@ -10,8 +10,8 @@ export default function AddressPicker({
   const GOONG_MAP_KEY = process.env.REACT_APP_GOONG_MAP_KEY;
   const GOONG_RS_KEY = process.env.REACT_APP_GOONG_RS_KEY;
 
-  const lngRestaurant = restaurant?.location?.coordinates[0];
-  const latRestaurant = restaurant?.location?.coordinates[1];
+  const lngRestaurant = restaurant?.address?.location?.coordinates[0];
+  const latRestaurant = restaurant?.address?.location?.coordinates[1];
 
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
@@ -34,10 +34,16 @@ export default function AddressPicker({
       return;
     }
 
-    if (!restaurant || !restaurant.location || !restaurant.location.coordinates)
+    if (
+      !restaurant ||
+      !restaurant.address.location ||
+      !restaurant.address.location.coordinates
+    )
       return;
 
     goongjs.accessToken = GOONG_MAP_KEY;
+
+    if (!mapContainer.current) return;
     const map = new goongjs.Map({
       container: mapContainer.current,
       style: "https://tiles.goong.io/assets/goong_map_web.json",
@@ -223,7 +229,7 @@ export default function AddressPicker({
     <div className="space-y-3 text-black">
       {droneDistance && (
         <p className="text-sm font-medium text-green-600 mb-4">
-          🚁 Khoảng cách đường chim bay: {droneDistance} km
+          Khoảng cách đường chim bay: {droneDistance} km
         </p>
       )}
       <div className="flex gap-3">
@@ -272,7 +278,10 @@ export default function AddressPicker({
         </div>
       )}
 
-      <div ref={mapContainer} className="h-64 rounded-xl shadow-inner" />
+      <div
+        ref={mapContainer}
+        className="goong-map-container h-64 rounded-xl shadow-inner"
+      />
 
       <input
         value={addressFull}

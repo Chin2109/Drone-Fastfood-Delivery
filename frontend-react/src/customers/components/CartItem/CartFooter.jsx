@@ -4,7 +4,10 @@ export const CartFooter = ({ formattedTotal, onClick }) => (
       <p className="text-lg font-bold text-gray-900">Tổng cộng</p>
       <p className="text-lg font-bold text-gray-900">{formattedTotal}</p>
     </div>
-    <button className="w-full py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-150 transform active:scale-[0.99]">
+    <button
+      onClick={onClick}
+      className="w-full py-3 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-150 transform active:scale-[0.99]"
+    >
       Xem lại đơn hàng
     </button>
   </footer>

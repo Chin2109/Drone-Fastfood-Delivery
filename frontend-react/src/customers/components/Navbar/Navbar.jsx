@@ -14,7 +14,6 @@ const Navbar = () => {
   const location = useLocation();
   const { auth, cart } = useSelector((store) => store);
   const user = useSelector((state) => state.auth?.user);
-  console.log(user);
   const dispatch = useDispatch();
   const isRestaurantPage =
     /^\/restaurant\/\d+$/.test(location.pathname) ||
@@ -54,6 +53,10 @@ const Navbar = () => {
     navigate("/");
   };
 
+  const navigateToPartner = () => {
+    navigate("/merchant");
+  };
+
   const handleLogout = () => {
     dispatch(logout());
     handleCloseMenu();
@@ -66,16 +69,20 @@ const Navbar = () => {
           onClick={navigateToHome}
           className="lg:mr-10 cursor-pointer flex items-center space-x-4"
         >
-          <li className="">
-            FastFood
-          </li>
+          <li className="">FastFood</li>
         </div>
 
         {/* <li className="font font-semibold">Home</li> */}
       </div>
       <div className="flex items-center space-x-2 lg:space-x-10">
+        <div
+          onClick={navigateToPartner}
+          className="flex items-center space-x-2 cursor-pointer"
+        >
+          Trở thành đối tác
+        </div>
         <div className="flex items-center space-x-2">
-          {user?.email ? (
+          {user?.data?.email ? (
             <span
               id="demo-positioned-button"
               aria-controls={open ? "demo-positioned-menu" : undefined}

@@ -8,6 +8,7 @@ import com.zosh.domain.USER_ROLE;
 import com.zosh.request.LoginRequest;
 import com.zosh.request.RegisterUserRequest;
 import com.zosh.response.RegisterUserResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +27,7 @@ import com.zosh.repository.UserRepository;
 @Service
 public class UserServiceImplementation implements UserService {
 
-
+	@Autowired
 	private UserRepository userRepository;
 	private JwtProvider jwtProvider;
 	private PasswordEncoder passwordEncoder;
@@ -63,7 +64,7 @@ public class UserServiceImplementation implements UserService {
 		if(user.isEmpty()) {
 			throw new RuntimeException("invalid email or password");
 		}
-		if(passwordEncoder.matches(user.get().getPassword(),request.getPassword())) {
+		if(!passwordEncoder.matches(request.getPassword(),user.get().getPassword())) {
 			throw new RuntimeException("invalid email or password");
 		}
 
@@ -73,6 +74,7 @@ public class UserServiceImplementation implements UserService {
 	public User getProfile(Long id) {
 		Optional<User> user = userRepository.findById(id);
 		if(user.isEmpty()) {
+			System.out.println("User is null for ID: " + id);
 			throw new RuntimeException();
 		}
 

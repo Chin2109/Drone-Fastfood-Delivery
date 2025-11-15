@@ -88,8 +88,8 @@ const Restaurant = () => {
 
           <div className="flex flex-col text-sm text-gray-500 mt-2">
             <span className="mr-4">{restaurant?.description}</span>
-            <span className="mr-4">Giờ mở cửa: 7:00 - 22:00</span>
-            <span
+            {/* <span className="mr-4">Giờ mở cửa: 7:00 - 22:00</span> */}
+            {/* <span
               className={`font-medium ${
                 restaurant?.is_temporarily_closed === false
                   ? "text-green-600"
@@ -99,7 +99,7 @@ const Restaurant = () => {
               {restaurant?.is_temporarily_closed === false
                 ? "Đang mở cửa"
                 : "Đã đóng cửa"}
-            </span>
+            </span> */}
           </div>
         </header>
 
