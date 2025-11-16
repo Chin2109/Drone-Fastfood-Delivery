@@ -6,9 +6,13 @@ import java.util.List;
 
 @Data
 public class FoodResponse {
+    private Long id;
     private String name;
+    private Long basePrice;
     private String description;
-    private Long price;
     private String image;
-    private boolean available;
+    private boolean isActive;
+
+    private List<ProductToppingGroupResponse> productToppingGroups;
+    private CategoryResponse category;
 }

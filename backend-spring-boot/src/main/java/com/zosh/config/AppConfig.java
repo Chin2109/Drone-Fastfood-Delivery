@@ -39,6 +39,8 @@ public class AppConfig {
                         .requestMatchers("/api/user/register").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/merchant").permitAll()
+                        .requestMatchers("/api/product/getAll").permitAll()
+
 
 
                         .requestMatchers("/api/admin/**").hasAnyRole("RESTAURANT_OWNER","ADMIN")

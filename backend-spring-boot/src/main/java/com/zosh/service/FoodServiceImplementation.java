@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.zosh.mapper.FoodMapper;
 import com.zosh.model.*;
 import com.zosh.repository.CategoryRepository;
 import com.zosh.repository.FoodRepository;
@@ -17,6 +18,8 @@ import com.zosh.response.FoodItemResponse;
 import com.zosh.response.FoodResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 
@@ -84,16 +87,27 @@ public class FoodServiceImplementation implements FoodService {
         return foodRepository.save(food);
     }
 
-    public List<FoodItemResponse> getAllFood() {
-        List<Food> foods = foodRepository.findAll();
-        List<FoodItemResponse> fr = new ArrayList<>();
-        for (Food  food : foods) {
-            FoodItemResponse f = new FoodItemResponse();
-            f.setName(food.getName());
-            f.setImage(food.getImage());
-            fr.add(f);
+    public Page<FoodResponse> getAllFood (Long merchantId,
+                                         Long categoryId,
+                                         String name,
+                                         int page,
+                                         int limit)
+    {
+        if (page < 1) {
+            page = 1;
         }
-        return fr;
+        if (limit <= 0) {
+            limit = 10;
+        }
+
+        PageRequest pageable = PageRequest.of(page - 1, limit);
+
+        //nếu name rỗng thì keyword là null để query
+        String keyword = (name == null || name.isBlank()) ? null : name.trim();
+
+        Page<Food> foods = foodRepository.searchFoods(merchantId,categoryId,keyword,pageable);
+
+        return foods.map(FoodMapper::toFoodResponse);
     }
 
 }
