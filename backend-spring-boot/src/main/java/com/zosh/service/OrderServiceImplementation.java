@@ -6,6 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.zosh.repository.*;
+import com.zosh.request.CreateOrderFromCartRequest;
+import jakarta.transaction.Transactional;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +27,86 @@ import com.zosh.model.Order;
 import com.zosh.model.OrderItem;
 import com.zosh.model.Restaurant;
 import com.zosh.model.User;
-import com.zosh.repository.AddressRepository;
-import com.zosh.repository.OrderItemRepository;
-import com.zosh.repository.OrderRepository;
-import com.zosh.repository.RestaurantRepository;
-import com.zosh.repository.UserRepository;
 import com.zosh.request.CreateOrderRequest;
 @Service
 public class OrderServiceImplementation implements OrderService {
+    private OrderRepository orderRepository;
+    private OrderItemRepository orderItemRepository;
+    private CartRepository cartRepository;
+    private AddressRepository addressRepository;
+    @Autowired
+    private GeometryFactory geometryFactory;
 
+    @Transactional
+    public Order createOrderFromCart(CreateOrderFromCartRequest request,
+                                     String address, Double lng, Double lat)
+    {
+        // 1. Lấy cart
+        Cart cart = cartRepository.findById(request.getCartId())
+                .orElseThrow(() -> new RuntimeException("Cart not found with id: " + request.getCartId()));
+
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            throw new RuntimeException("Cart is empty");
+        }
+
+        Address add = new Address();
+        add.setFullName(address);
+        Coordinate coor = new Coordinate(lng,lat);
+        Point point = geometryFactory.createPoint(coor);
+        add.setLocation(point);
+
+        // 3. Tạo Order
+        Order order = new Order();
+        order.setCustomer(cart.getUser());
+        order.setRestaurant(cart.getRestaurant());
+        order.setDeliveryAddress(add);
+        order.setCreatedAt(new Date());
+
+        // Sau khi thanh toán VNPay thành công nên để PAID, tùy bạn quy ước
+        order.setOrderStatus("PAID");
+
+        // set tạm để tránh null
+        order.setTotalAmount(0L);
+        order.setTotalItem(0);
+        order.setTotalPrice(0L);
+
+        order = orderRepository.save(order);
+
+        // 4. Tạo OrderItem từ CartItem
+        int totalItem = 0;
+        long totalPrice = 0L;
+
+        for (CartItem ci : cart.getItems()) {
+            OrderItem oi = new OrderItem();
+            oi.setOrder(order);
+            oi.setFood(ci.getFood());
+            oi.setQuantity(ci.getQuantity());
+            oi.setIngredientDetailsJson(ci.getIngredientDetailsJson());
+            oi.setTotalPrice(ci.getTotalPrice()); // totalPrice của dòng trong cart
+
+            orderItemRepository.save(oi);
+
+            totalItem += ci.getQuantity();
+            totalPrice += ci.getTotalPrice();
+        }
+
+        // 5. Cập nhật tổng tiền, tổng số lượng
+        order.setTotalItem(totalItem);
+        order.setTotalPrice(totalPrice);
+        order.setTotalAmount(totalPrice); // nếu chưa có phí ship/thuế thì cho bằng luôn
+
+        order = orderRepository.save(order);
+
+        // 6. (Optional) clear cart sau khi đặt hàng
+        // Nếu bạn muốn xóa hẳn cart:
+        // cartRepository.delete(cart);
+
+        // clear items và set totalPrice = 0
+        cart.getItems().clear();
+        cart.setTotalPrice(0L);
+        cartRepository.save(cart);
+
+        return order;
+    }
 
 }

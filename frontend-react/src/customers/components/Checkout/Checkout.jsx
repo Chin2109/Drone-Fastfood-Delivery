@@ -1,22 +1,26 @@
 import { CreditCard, MapPin, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
+
 import { getAllCartItems } from "../../../State/Customers/Cart/cart.action";
 import {
   checkoutPreview,
   createOrder,
 } from "../../../State/Customers/Orders/Action";
 import { getRestaurantById } from "../../../State/Customers/Restaurant/restaurant.action";
+
 import Cart from "../../pages/Cart/Cart";
 import { formatCurrency } from "../../util/formartCurrency";
 import AddressPicker from "../Address/AddressPicker";
 import SpecialInstruction from "../Product/SpecialInstruction";
 
+
 export default function Checkout() {
   const dispatch = useDispatch();
   const [selectedAddress, setSelectedAddress] = useState(null);
 
+  const location = useLocation();
   const { id } = useParams();
   const { jwt, user } = useSelector((state) => state.auth);
   const { cart } = useSelector((state) => state.cart);
@@ -26,6 +30,29 @@ export default function Checkout() {
     dispatch(getAllCartItems({ merchantId: id, jwt: jwt }));
     dispatch(getRestaurantById(id));
   }, []);
+
+    // 👇 NEW: khi VNPay redirect về /checkout?vnp_... thì tự tạo đơn hàng
+  // useEffect(() => {
+  //   const params = new URLSearchParams(location.search);
+  //   const vnpTxnRef = params.get("vnp_TxnRef"); // hoặc lấy bất kỳ param nào của VNPay
+
+  //   if (vnpTxnRef && !hasCreatedOrder) {
+  //     const storedOrder = sessionStorage.getItem("pendingOrder");
+  //     if (storedOrder) {
+  //       const orderPayload = JSON.parse(storedOrder);
+
+  //       // luôn coi là thanh toán thành công => tạo đơn hàng
+  //       dispatch(createOrder({ order: orderPayload, jwt }));
+
+  //       // dọn dẹp
+  //       sessionStorage.removeItem("pendingOrder");
+  //       setHasCreatedOrder(true);
+
+  //       // Xoá query VNPay khỏi URL cho sạch
+  //       window.history.replaceState({}, document.title, location.pathname);
+  //     }
+  //   }
+  // }, [location.search, hasCreatedOrder, dispatch, jwt]);
 
   const handleLocationSelected = (tempAddressData) => {
     setSelectedAddress(tempAddressData);
@@ -43,34 +70,55 @@ export default function Checkout() {
     );
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!order) {
       alert("Chưa có thông tin đơn hàng, vui lòng chọn địa chỉ.");
       return;
     }
 
-    // Build payload cho API createOrder
-    const orderPayload = {
-      userId: user?.data?.id, // lấy từ state auth nếu cần
-      merchantId: id,
-      temporaryAddress: selectedAddress,
-      orderItems:
-        order?.items?.map((item) => ({
-          productId: Number(item.productId),
-          quantity: Number(item.quantity),
-          toppings:
-            item.toppings?.map((t) => ({
-              toppingId: Number(t.toppingId),
-              quantity: Number(t.quantity),
-            })) || [],
-        })) || [],
-      note: order?.note || "",
-      paymentMethod: "Thanh toán online",
-      distance: order?.distance || 0,
-    };
+    if (!selectedAddress) {
+      alert("Vui lòng chọn địa chỉ giao hàng.");
+      return;
+    }
 
-    dispatch(createOrder({ order: orderPayload, jwt }));
+    try {
+      const amount = order?.finalTotal || 0;
+
+      console.log("Gọi tới backend VNPay với amount:", amount);
+
+      const res = await fetch(
+        `http://localhost:5454/api/v1/payment/vn-pay?amount=${amount}&bankCode=NCB`,
+        {
+          method: "GET",
+        }
+      );
+
+      console.log("Status:", res.status);
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Backend error:", res.status, text);
+        alert("Backend trả lỗi khi tạo paymentUrl VNPay, mở console để xem chi tiết.");
+        return;
+      }
+
+      const data = await res.json();
+      console.log("Data:", data);
+
+      if (data?.paymentUrl) {
+        //direct sang sandbox VNPay
+        window.location.href = data.paymentUrl;
+      } else {
+        alert("Không tạo được link thanh toán VNPay (paymentUrl null).");
+        console.error("data nhận được:", data);
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      alert("Có lỗi khi khởi tạo thanh toán VNPay (network/CORS).");
+    }
   };
+
+
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
@@ -129,7 +177,7 @@ export default function Checkout() {
 
           <button
             onClick={handlePayment}
-            className={`flex-1 w-full py-3 font-bold rounded-lg shadow-lg text-base sm:text-lg transition duration-150 bg-green-500 text-white hover:bg-green-600`}
+            className="flex-1 w-full py-3 font-bold rounded-lg shadow-lg text-base sm:text-lg transition duration-150 bg-green-500 text-white hover:bg-green-600"
           >
             Thanh toán
           </button>

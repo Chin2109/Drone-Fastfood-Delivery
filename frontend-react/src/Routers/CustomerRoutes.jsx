@@ -17,6 +17,8 @@ import Verify from "../customers/components/Verify/Verify";
 import ProductDetail from "../customers/pages/Product-detail/Product-detail";
 import CreateMerchantForm from "../customers/pages/Merchant/CreateMerchantForm";
 import Partner from "../customers/pages/Partner/Partner";
+import VnPayReturn from "../customers/pages/VnPayReturn";
+
 
 const CustomerRoutes = () => {
   return (
@@ -57,6 +59,10 @@ const CustomerRoutes = () => {
           element={<PasswordChangeSuccess />}
         />
         <Route exact path="/*" element={<NotFound />} />
+        
+        
+        <Route path="/checkout/vnpay-return" element={<VnPayReturn />} />
+
       </Routes>
     </div>
   );
