@@ -200,42 +200,38 @@ const CreateMerchantForm = () => {
       </div>
     ))}
 
-    {/* Thêm AddressPicker */}
-    <div className="sm:col-span-2">
-      <label className={labelClass}>
-        Địa chỉ cửa hàng <span className="text-red-500">*</span>
-      </label>
-      <AddressPicker
-        restaurant={{
-          address: {
-            location: {
-              coordinates: [
-                form.restaurantLng || 106.6297, 
-                form.restaurantLat || 10.8231
-              ]
-            }
-          }
-        }}
-        onAddressChange={({ full, lat, lng }) => {
-          setForm((prev) => ({
-            ...prev,
-            restaurantAddress: full,
-            restaurantLat: lat,
-            restaurantLng: lng,
-          }));
-        }}
-        onLocationSelected={({ street, location, distance }) => {
-          setForm((prev) => ({
-            ...prev,
-            restaurantAddress: street,
-            restaurantLat: location.coordinates[1],
-            restaurantLng: location.coordinates[0],
-          }));
-        }}
-      />
-    </div>
-  </div>
-</section>
+          {/* Thêm AddressPicker */}
+          <div className="sm:col-span-2">
+            <label className={labelClass}>
+              Địa chỉ cửa hàng <span className="text-red-500">*</span>
+            </label>
+            <AddressPicker
+              restaurant={{
+                address: {
+                  latitude: form.restaurantLat || 10.8231,
+                  longitude: form.restaurantLng || 106.6297,
+                },
+              }}
+              onAddressChange={({ full, lat, lng }) => {
+                setForm((prev) => ({
+                  ...prev,
+                  restaurantAddress: full,
+                  restaurantLat: lat,
+                  restaurantLng: lng,
+                }));
+              }}
+              onLocationSelected={({ street, location, distance }) => {
+                setForm((prev) => ({
+                  ...prev,
+                  restaurantAddress: street,
+                  restaurantLat: location.coordinates[1],
+                  restaurantLng: location.coordinates[0],
+                }));
+              }}
+            />
+          </div>
+        </div>
+      </section>
 
 
           {/* 2. Thông tin đăng ký pháp lý */}

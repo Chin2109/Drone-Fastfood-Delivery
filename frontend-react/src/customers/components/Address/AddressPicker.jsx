@@ -10,8 +10,16 @@ export default function AddressPicker({
   const GOONG_MAP_KEY = process.env.REACT_APP_GOONG_MAP_KEY;
   const GOONG_RS_KEY = process.env.REACT_APP_GOONG_RS_KEY;
 
-  const lngRestaurant = restaurant?.address?.location?.coordinates[0];
-  const latRestaurant = restaurant?.address?.location?.coordinates[1];
+  
+  const latRestaurant =
+    restaurant?.address?.latitude ??
+    restaurant?.address?.location?.coordinates?.[1] ??
+    null;
+
+  const lngRestaurant =
+    restaurant?.address?.longitude ??
+    restaurant?.address?.location?.coordinates?.[0] ??
+    null;
 
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
@@ -34,28 +42,27 @@ export default function AddressPicker({
       return;
     }
 
-    if (
-      !restaurant ||
-      !restaurant.address.location ||
-      !restaurant.address.location.coordinates
-    )
+    // Chưa có toạ độ -> không init map
+    if (lngRestaurant == null || latRestaurant == null) {
+      console.log("Chưa có toạ độ nhà hàng", restaurant);
       return;
+    }
+    if (!mapContainer.current) return;
 
     goongjs.accessToken = GOONG_MAP_KEY;
 
-    if (!mapContainer.current) return;
     const map = new goongjs.Map({
       container: mapContainer.current,
       style: "https://tiles.goong.io/assets/goong_map_web.json",
       center: [lngRestaurant, latRestaurant],
       zoom: 13,
     });
+
     mapRef.current = map;
     map.addControl(new goongjs.NavigationControl(), "bottom-right");
 
     const rMarker = new goongjs.Marker({ color: "red" })
       .setLngLat([lngRestaurant, latRestaurant])
-
       .addTo(map);
     setRestaurantMarker(rMarker);
 
@@ -64,10 +71,10 @@ export default function AddressPicker({
         map.remove();
       } catch {}
     };
-  }, [restaurant]);
+  }, [GOONG_MAP_KEY, lngRestaurant, latRestaurant]);
 
   const calculateDroneDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // bán kính Trái Đất (km)
+    const R = 6371; // km
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
     const a =
@@ -83,8 +90,8 @@ export default function AddressPicker({
   const drawDroneLine = (customerLat, customerLng) => {
     const map = mapRef.current;
     if (!map) return;
+    if (lngRestaurant == null || latRestaurant == null) return;
 
-    // Xóa route cũ
     if (map.getLayer("drone-line")) map.removeLayer("drone-line");
     if (map.getSource("drone-line")) map.removeSource("drone-line");
 
@@ -141,6 +148,8 @@ export default function AddressPicker({
 
   const placeCustomerMarker = async (lngVal, latVal) => {
     const map = mapRef.current;
+    if (!map) return;
+
     if (customerMarker) customerMarker.remove();
 
     const newMarker = new goongjs.Marker({ color: "blue", draggable: true })
@@ -152,7 +161,7 @@ export default function AddressPicker({
       lngRestaurant,
       latVal,
       lngVal
-    ).toFixed(2); // trả về string, convert sang number
+    ).toFixed(2);
 
     newMarker.on("dragend", async () => {
       const { lng, lat } = newMarker.getLngLat();
@@ -185,7 +194,7 @@ export default function AddressPicker({
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
-        placeCustomerMarker(longitude, latitude);
+        await placeCustomerMarker(longitude, latitude);
         await reverseGeocode(latitude, longitude);
       },
       (err) => {
@@ -221,8 +230,8 @@ export default function AddressPicker({
     const result = data.result;
     const { lat: rlat, lng: rlng } = result.geometry.location;
     setAddressFull(result.formatted_address);
-    placeCustomerMarker(rlng, rlat);
-    reverseGeocode(rlat, rlng);
+    await placeCustomerMarker(rlng, rlat);
+    await reverseGeocode(rlat, rlng);
   };
 
   return (

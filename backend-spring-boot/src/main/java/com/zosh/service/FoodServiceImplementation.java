@@ -16,6 +16,7 @@ import com.zosh.request.IngredientCategoryDTO;
 import com.zosh.request.IngredientItemDTO;
 import com.zosh.response.FoodItemResponse;
 import com.zosh.response.FoodResponse;
+import com.zosh.response.ProductDetailResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,86 @@ public class FoodServiceImplementation implements FoodService {
     private RestaurantRepository restaurantRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+
+    //mapper
+    private ProductDetailResponse.ProductToppingGroupResponse toProductToppingGroupResponse(
+            IngredientCategory ic,
+            Food food
+    ) {
+        ProductDetailResponse.ProductToppingGroupResponse dto =
+                new ProductDetailResponse.ProductToppingGroupResponse();
+
+        dto.setId(ic.getId());
+        dto.setProductId(food.getId());
+        dto.setToppingGroupId(ic.getId()); // lấy id của IngredientCategory
+
+        // ---- toppingGroup ----
+        ProductDetailResponse.ToppingGroupResponse tg =
+                new ProductDetailResponse.ToppingGroupResponse();
+        tg.setId(ic.getId());
+        tg.setName(ic.getName());
+        tg.set_required(false); // bổ sung
+        tg.setMinSelection(1);    // tạm min=1
+        tg.setMaxSelection(ic.getIngredients() != null ? ic.getIngredients().size() : 0);
+
+        // toppings (IngredientsItem)
+        List<ProductDetailResponse.ToppingResponse> toppings =
+                ic.getIngredients().stream()
+                        .map(this::toToppingResponse)
+                        .toList();
+
+        tg.setToppings(toppings);
+        dto.setToppingGroup(tg);
+
+        return dto;
+    }
+
+    //mapper
+    private ProductDetailResponse.ToppingResponse toToppingResponse(IngredientsItem item) {
+        ProductDetailResponse.ToppingResponse dto =
+                new ProductDetailResponse.ToppingResponse();
+
+        dto.setId(item.getId());
+        dto.setName(item.getName());
+        dto.setPrice(item.getPrice());
+
+        return dto;
+    }
+
+    //mapper
+    private ProductDetailResponse mapToProductDetail(Food f) {
+        ProductDetailResponse dto = new ProductDetailResponse();
+
+        dto.setId(f.getId());
+        dto.setName(f.getName());
+        dto.setDescription(f.getDescription());
+        dto.setBasePrice(f.getPrice()); // basePrice <- Food.price
+        dto.setImage(f.getImage());
+
+        // ---- Category ----
+        Category category = f.getFoodCategory();
+        if (category != null) {
+            ProductDetailResponse.CategoryShortResponse cateDto =
+                    new ProductDetailResponse.CategoryShortResponse();
+            cateDto.setName(category.getName());
+            cateDto.setMerchantId(
+                    category.getRestaurant() != null
+                            ? category.getRestaurant().getId()
+                            : null
+            );
+            dto.setCategory(cateDto);
+        }
+
+        // ---- productToppingGroups (IngredientCategory) ----
+        List<ProductDetailResponse.ProductToppingGroupResponse> ptgDtos =
+                f.getIngredientCategories().stream()
+                        .map(ic -> toProductToppingGroupResponse(ic, f))
+                        .toList();
+
+        dto.setProductToppingGroups(ptgDtos);
+
+        return dto;
+    }
 
     @Override
     public Category createCategory(AddCategoryRequest request, Long id) {
@@ -87,6 +168,7 @@ public class FoodServiceImplementation implements FoodService {
         return foodRepository.save(food);
     }
 
+    @Override
     public Page<FoodResponse> getAllFood (Long merchantId,
                                          Long categoryId,
                                          String name,
@@ -110,4 +192,11 @@ public class FoodServiceImplementation implements FoodService {
         return foods.map(FoodMapper::toFoodResponse);
     }
 
+    @Override
+    public ProductDetailResponse findOneProductById(Long id) {
+        Food food = foodRepository.findByIdAndAvailableTrue(id)
+                .orElseThrow(() -> new RuntimeException("Product not found or inactive"));
+
+        return mapToProductDetail(food);
+    }
 }

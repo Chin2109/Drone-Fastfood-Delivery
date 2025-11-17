@@ -41,7 +41,7 @@ export const checkoutPreview = (reqData) => {
     dispatch({ type: CHECKOUT_PREVIEW_REQUEST });
     try {
       const { data } = await api.post(
-        `/cart-preview/checkout-calculate/${reqData.merchantId}`,
+        `/cart-item/checkout-calculate/${reqData.merchantId}`,
         reqData.order,
         {
           headers: {

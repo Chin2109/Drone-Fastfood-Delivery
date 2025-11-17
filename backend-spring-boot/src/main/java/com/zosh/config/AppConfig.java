@@ -10,6 +10,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -40,8 +41,8 @@ public class AppConfig {
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/merchant").permitAll()
                         .requestMatchers("/api/product/getAll").permitAll()
-
-
+                        .requestMatchers(HttpMethod.GET, "/api/merchant/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/product/getone/*").permitAll()
 
                         .requestMatchers("/api/admin/**").hasAnyRole("RESTAURANT_OWNER","ADMIN")
                         .requestMatchers("/api/**").authenticated()

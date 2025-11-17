@@ -6,6 +6,7 @@ import com.zosh.request.AddCategoryRequest;
 import com.zosh.request.AddFoodRequest;
 import com.zosh.response.FoodItemResponse;
 import com.zosh.response.FoodResponse;
+import com.zosh.response.ProductDetailResponse;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -21,6 +22,8 @@ public interface FoodService {
                                  String name,
                                  int page,
                                  int limit);
+
+    public ProductDetailResponse findOneProductById(Long id);
 
 //	void deleteFood(Long foodId) throws FoodException;
 //

@@ -20,9 +20,13 @@ const Cart = () => {
   const { id } = useParams();
   const { jwt } = useSelector((state) => state.auth);
   const { cart } = useSelector((state) => state.cart);
+  
   useEffect(() => {
-    dispatch(getAllCartItems({ merchantId: id, jwt: jwt }));
-  }, []);
+    if (id && jwt) {
+      dispatch(getAllCartItems({ merchantId: id, jwt }));
+    }
+  }, [id, jwt, dispatch]);
+
 
   const navigateToCheckout = () => {
     navigate(`/checkout/${id}`);
@@ -68,11 +72,10 @@ const Cart = () => {
           </section>
         )}
 
-        {cart?.data?.items.map((item) => (
-          <section>
+        {(cart?.data?.items || []).map((item) => (
+          <section key={item?.id}>
             <CartItemCard
-              key={item?.id}
-              item={item?.id}
+              item={item}                 // gửi luôn object cho chắc
               product={item?.product}
               quantity={item?.quantity}
               toppings={item?.toppings}

@@ -1,90 +1,159 @@
 package com.zosh.controller;
-
+import com.zosh.dto.CheckoutCalculateDto;
+import com.zosh.repository.UserRepository;
+import com.zosh.request.CartPreviewRequest;
+import com.zosh.request.CreateCartItemRequest;
+import com.zosh.response.AddToCartResult;
+import com.zosh.response.CartPreviewResponse;
+import com.zosh.response.CartSummaryResponse;
+import com.zosh.response.CheckoutCalculateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.zosh.Exception.CartException;
-import com.zosh.Exception.CartItemException;
-import com.zosh.Exception.FoodException;
-import com.zosh.Exception.UserException;
-import com.zosh.model.Cart;
-import com.zosh.model.CartItem;
-import com.zosh.model.Food;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 import com.zosh.model.User;
-import com.zosh.request.AddCartItemRequest;
-import com.zosh.request.UpdateCartItemRequest;
 import com.zosh.service.CartSerive;
 import com.zosh.service.UserService;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/cart-item")
 public class CartController {
 	@Autowired
 	private CartSerive cartService;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private UserRepository userRepository;
 
-//	@PutMapping("/cart/add")
-//	public ResponseEntity<CartItem> addItemToCart(@RequestBody AddCartItemRequest req,
-//			@RequestHeader("Authorization") String jwt) throws UserException, FoodException, CartException, CartItemException {
-//		CartItem cart = cartService.addItemToCart(req, jwt);
-//		return ResponseEntity.ok(cart);
-//
-//	}
-//
-//	@PutMapping("/cart-item/update")
-//	public ResponseEntity<CartItem> updateCartItemQuantity(
-//			@RequestBody UpdateCartItemRequest req,
-//			@RequestHeader("Authorization") String jwt) throws CartItemException {
-//		CartItem cart = cartService.updateCartItemQuantity(req.getCartItemId(), req.getQuantity());
-//		return ResponseEntity.ok(cart);
-//	}
-//
-//	@DeleteMapping("/cart-item/{id}/remove")
-//	public ResponseEntity<Cart> removeItemFromCart(@PathVariable Long id,
-//			@RequestHeader("Authorization") String jwt) throws UserException, CartException, CartItemException {
-//
-//		Cart cart = cartService.removeItemFromCart(id, jwt);
-//		return ResponseEntity.ok(cart);
-//
-//	}
-//
-//	@GetMapping("/cart/total")
-//	public ResponseEntity<Double> calculateCartTotals(@RequestParam Long cartId,
-//			@RequestHeader("Authorization") String jwt) throws UserException, CartException {
-//
-//
-//		User user = userService.findUserProfileByJwt(jwt);
-//
-//		Cart cart =cartService.findCartByUserId(user.getId());
-//		double total = cartService.calculateCartTotals(cart);
-//		return ResponseEntity.ok(total);
-//	}
-//
-//	@GetMapping("/cart/")
-//	public ResponseEntity<Cart> findUserCart(
-//			@RequestHeader("Authorization") String jwt) throws UserException, CartException {
-//User user=userService.findUserProfileByJwt(jwt);
-//		Cart cart = cartService.findCartByUserId(user.getId());
-//		return ResponseEntity.ok(cart);
-//	}
-//
-//	@PutMapping("/cart/clear")
-//	public ResponseEntity<Cart> cleareCart(
-//			@RequestHeader("Authorization") String jwt) throws UserException, CartException {
-//User user=userService.findUserProfileByJwt(jwt);
-//		Cart cart = cartService.clearCart(user.getId());
-//		return ResponseEntity.ok(cart);
-//	}
+	@PostMapping("/addtocart/{merchantId}")
+	public ResponseEntity<?> addToCart(
+			@PathVariable Long merchantId,
+			@RequestBody CreateCartItemRequest request,
+			Authentication authentication // lấy từ SecurityContext (JwtTokenValidator)
+	) {
+		// 1. Lấy email từ JWT
+		String email = authentication.getName(); // vì JwtTokenValidator set principal = email
 
+		// 2. Tìm user theo email
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new RuntimeException("User không tồn tại với email: " + email));
+
+		Long userId = user.getId();
+
+		// 3. Gọi service xử lý logic addToCart
+		AddToCartResult result = cartService.addToCart(request, userId, merchantId);
+
+		// 4. Trả về giống style bên NestJS (message + data)
+		return ResponseEntity.ok(
+				Map.of(
+						"success", true,
+						"message", result.getMessage(),
+						"data", result.getData()
+				)
+		);
+	}
+
+	@GetMapping("/get-cartitems/{merchantId}")
+	public ResponseEntity<?> getCartItemsByUser(
+			@PathVariable Long merchantId,
+			Authentication authentication
+	) {
+		String email = authentication.getName();
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new RuntimeException("User không tồn tại với email: " + email));
+
+		Long userId = user.getId();
+
+		CartSummaryResponse summary = cartService.getCartItems(userId, merchantId);
+
+		if (summary == null)
+		{
+			CartSummaryResponse empty = new CartSummaryResponse();
+			empty.setCartId(null);
+			empty.setMerchantId(merchantId);
+			empty.setMerchantName(null);
+			empty.setItems(java.util.List.of());
+			empty.setTotal(0L);
+
+			return ResponseEntity.ok(
+					Map.of(
+							"success", true,
+							"message", "Giỏ hàng trống",
+							"data", empty
+					)
+			);
+		}
+
+		return ResponseEntity.ok(
+				Map.of(
+						"success", true,
+						"message", "Lấy giỏ hàng thành công",
+						"data", summary
+				)
+		);
+	}
+
+	@PostMapping("/checkout-preview/{merchantId}")
+	public ResponseEntity<?> checkoutPreview(
+			@PathVariable Long merchantId,
+			@RequestBody CartPreviewRequest request,
+			Authentication authentication
+	) {
+		String email = authentication.getName();
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new RuntimeException("User không tồn tại với email: " + email));
+
+		Long userId = user.getId();
+
+		CartPreviewResponse preview = cartService.cartPreview(userId, merchantId, request);
+
+		return ResponseEntity.ok(
+				Map.of(
+						"success", true,
+						"message", "Xem trước giỏ hàng thành công.",
+						"data", preview
+				)
+		);
+	}
+
+
+	@PostMapping("/checkout-calculate/{merchantId}")
+	public ResponseEntity<?> checkoutCalculate(
+			@PathVariable Long merchantId,
+			@RequestBody CheckoutCalculateDto dto,
+			Authentication authentication
+	) {
+		// ==== lấy userId từ JWT (giống req.user.id trong Nest) ====
+		String email = authentication.getName();
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new RuntimeException("User id not found"));
+		Long userId = user.getId();
+
+		// ==== validate như Nest ====
+		if (dto.getAddressId() == null && dto.getTemporaryAddress() == null) {
+			throw new IllegalArgumentException(
+					"Either addressId or temporaryAddress must be provided."
+			);
+		}
+
+		if (dto.getAddressId() != null && dto.getTemporaryAddress() != null) {
+			throw new IllegalArgumentException(
+					"Cannot use both addressId and temporaryAddress at the same time."
+			);
+		}
+
+		// ==== gọi service ====
+		CheckoutCalculateResponse data =
+				cartService.checkoutCalculate(userId, merchantId, dto);
+
+		// ==== trả về giống Nest: message + data ====
+		return ResponseEntity.ok(
+				Map.of(
+						"message", "Checkout tính toán thành công.",
+						"data", data
+				)
+		);
+	}
 }

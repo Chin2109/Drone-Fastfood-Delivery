@@ -10,6 +10,7 @@ import com.zosh.request.CreateRestaurantRequest;
 import com.zosh.request.Form1;
 import com.zosh.request.RestaurantRegisterDTO;
 import com.zosh.response.MenuItemResponse;
+import com.zosh.response.RestaurantDetailResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface RestaurantService {
@@ -20,6 +21,8 @@ public interface RestaurantService {
 			List<MultipartFile> kitchenImages,
 			List<MultipartFile> otherImages
 	);
+
+	public RestaurantDetailResponse getRestaurantDetail(Long id);
 
 //	public Restaurant createRestaurant(CreateRestaurantRequest req,User user);
 

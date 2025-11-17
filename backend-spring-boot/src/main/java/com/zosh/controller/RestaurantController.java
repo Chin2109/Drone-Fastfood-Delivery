@@ -1,10 +1,12 @@
 package com.zosh.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import com.zosh.request.CreateRestaurantRequest;
 import com.zosh.request.RestaurantRegisterDTO;
 import com.zosh.response.MenuItemResponse;
+import com.zosh.response.RestaurantDetailResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +45,21 @@ public class RestaurantController {
 			return ResponseEntity.status(500).body("Đã xảy ra lỗi khi tạo merchant: " + e.getMessage());
 		}
 	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getRestaurantById(@PathVariable Long id) {
+
+		RestaurantDetailResponse data = restaurantService.getRestaurantDetail(id);
+
+		return ResponseEntity.ok(
+				Map.of(
+						"success", true,
+						"message", "Taken successfully",
+						"data", data
+				)
+		);
+	}
+
 
 
 }

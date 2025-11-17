@@ -5,7 +5,7 @@ const ProductImageInfo = ({ product }) => (
     <img
       src={product.image || "https://placehold.co/600x300"}
       alt={product.name}
-      className="w-48 h-48 sm:h-64 object-cover"
+      className="w-48 h-48 sm:h-64 object-cover mx-auto"
     />
     <div className="p-5">
       <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>

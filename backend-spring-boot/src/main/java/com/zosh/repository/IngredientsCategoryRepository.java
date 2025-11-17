@@ -15,4 +15,6 @@ extends JpaRepository<IngredientCategory, Long>{
 //			+ "AND lower(e.name) = lower(:name)")
 //	IngredientCategory findByRestaurantIdAndNameIgnoreCase(
 //			@Param("restaurantId") Long restaurantId, @Param("name") String name);
+
+
 }

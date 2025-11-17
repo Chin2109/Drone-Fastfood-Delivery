@@ -6,6 +6,7 @@ import com.zosh.request.AddCategoryRequest;
 import com.zosh.request.AddFoodRequest;
 import com.zosh.response.FoodItemResponse;
 import com.zosh.response.FoodResponse;
+import com.zosh.response.ProductDetailResponse;
 import com.zosh.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,6 +41,20 @@ public class FoodController {
             "message", "Taken successfully",
             "data", foods.getContent()
         ), HttpStatus.OK);
+    }
+
+    @GetMapping("/getone/{id}")
+    public ResponseEntity<?> getProductDetail(@PathVariable Long id) {
+
+        ProductDetailResponse data = foodService.findOneProductById(id);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "success", true,
+                        "message", "Taken successfully",
+                        "data", data
+                )
+        );
     }
 
 

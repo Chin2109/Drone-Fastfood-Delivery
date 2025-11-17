@@ -15,6 +15,8 @@ public class RestaurantRegisterDTO {
     private String merchantEmail;
     private String merchantPhoneNumber;
     private String restaurantAddress;
+    private Double restaurantLat;
+    private Double restaurantLng;
     private String businessModel;
     private Integer dailyOrderVolume;
 

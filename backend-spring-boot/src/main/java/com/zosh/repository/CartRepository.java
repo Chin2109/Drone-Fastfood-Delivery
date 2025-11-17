@@ -9,4 +9,7 @@ import com.zosh.model.Cart;
 public interface CartRepository extends JpaRepository<Cart, Long> {
 
 	 Optional<Cart> findByUser_Id(Long userId);
+
+	// Tìm cart theo user + restaurant (1 cart/current user per merchant)
+	Optional<Cart> findByUser_IdAndRestaurant_Id(Long userId, Long restaurantId);
 }

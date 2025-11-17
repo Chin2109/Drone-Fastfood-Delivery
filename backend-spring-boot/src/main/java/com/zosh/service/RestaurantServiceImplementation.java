@@ -13,6 +13,7 @@ import com.zosh.request.Form1;
 import com.zosh.request.RestaurantRegisterDTO;
 import com.zosh.response.FoodResponse;
 import com.zosh.response.MenuItemResponse;
+import com.zosh.response.RestaurantDetailResponse;
 import jakarta.transaction.Transactional;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,14 +117,9 @@ public class RestaurantServiceImplementation implements RestaurantService {
 
 		Address add = new Address();
 		add.setFullName(form.getRestaurantAddress());
-		try {
-			GeocodingService.Location location = geocodingService.getCoordinates(add.getFullName());
-			Coordinate coor = new Coordinate(location.getLng(),location.getLat());
-			Point point = geometryFactory.createPoint(coor);
-			add.setLocation(point);
-		} catch (Exception e) {
-			System.err.println("Lỗi khi tìm tọa độ: " + e.getMessage());
-		}
+		Coordinate coor = new Coordinate(form.getRestaurantLng(), form.getRestaurantLat());
+		Point point = geometryFactory.createPoint(coor);
+		add.setLocation(point);
 		// 1) Lưu address trước
 		Address savedAddress = addressRepository.save(add);
 
@@ -140,6 +136,49 @@ public class RestaurantServiceImplementation implements RestaurantService {
 
 		return restaurantRepository.findByIdWithImages(saved.getId())
 				.orElseThrow(() -> new RuntimeException("Restaurant not found after creation"));
+	}
+
+
+	@Override
+	public RestaurantDetailResponse getRestaurantDetail(Long id) {
+		Restaurant restaurant = restaurantRepository
+				.findWithAddressAndImagesById(id)
+				.orElseThrow(() -> new RuntimeException("Restaurant not found with id = " + id));
+
+		RestaurantDetailResponse dto = new RestaurantDetailResponse();
+		dto.setId(restaurant.getId());
+		dto.setName(restaurant.getName());
+
+		// ---- Address mapping ----
+		Address address = restaurant.getAddress();
+		if (address != null) {
+			RestaurantDetailResponse.AddressResponse addrDto =
+					new RestaurantDetailResponse.AddressResponse();
+
+			// Bạn đang có field fullName -> mình map nó vào street
+			addrDto.setStreet(address.getFullName());
+			addrDto.setLatitude(address.getLatitude());
+			addrDto.setLongitude(address.getLongitude());
+
+			dto.setAddress(addrDto);
+		}
+
+		// ---- Background images mapping ----
+		List<RestaurantImage> images = restaurant.getRestaurantImages();
+
+		List<RestaurantDetailResponse.ImageResponse> bgImages = images.stream()
+				.filter(img -> img.getType() == RestaurantRegisterImage.BACKGROUND) // lọc đúng loại BACKGROUND
+				.map(img -> {
+					RestaurantDetailResponse.ImageResponse imgDto =
+							new RestaurantDetailResponse.ImageResponse();
+					imgDto.setUrl(img.getUrl());
+					return imgDto;
+				})
+				.toList();
+
+		dto.setBackgroundImages(bgImages);
+
+		return dto;
 	}
 
 //	@Override
