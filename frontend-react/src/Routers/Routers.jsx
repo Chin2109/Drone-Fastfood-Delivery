@@ -9,6 +9,7 @@ import NotFound from "../customers/pages/NotFound/NotFound";
 import IngredientsList from "../Data/Demo";
 import CreateRestaurantForm from "../Admin/AddRestaurants/CreateRestaurantForm";
 import AdminRouters from "./AdminRouters";
+import RestaurantRoutes from "./MerchentRoutes.jsx";
 
 const Routers = () => {
   const { auth } = useSelector((store) => store);
@@ -23,6 +24,7 @@ const Routers = () => {
         element={<AdminRouters/>}
       />
       <Route path="/*" element={<CustomerRoutes />} />
+      <Route path="/restaurant/*" element={<RestaurantRoutes/>} />
     </Routes>
     </>
     

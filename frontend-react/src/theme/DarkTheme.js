@@ -13,7 +13,7 @@ const darkTheme = createTheme({
       main: "#242B2E",
     },
     background: {
-      main: "#000000",
+      main: "#040000ff",
       default: "#0D0D0D",
       paper: "#0D0D0D",
     },
