@@ -30,16 +30,20 @@ import com.zosh.model.User;
 import com.zosh.request.CreateOrderRequest;
 @Service
 public class OrderServiceImplementation implements OrderService {
+    @Autowired
     private OrderRepository orderRepository;
+    @Autowired
     private OrderItemRepository orderItemRepository;
+    @Autowired
     private CartRepository cartRepository;
+    @Autowired
     private AddressRepository addressRepository;
     @Autowired
     private GeometryFactory geometryFactory;
 
+    @Override
     @Transactional
-    public Order createOrderFromCart(CreateOrderFromCartRequest request,
-                                     String address, Double lng, Double lat)
+    public Order createOrderFromCart(CreateOrderFromCartRequest request)
     {
         // 1. Lấy cart
         Cart cart = cartRepository.findById(request.getCartId())
@@ -50,10 +54,11 @@ public class OrderServiceImplementation implements OrderService {
         }
 
         Address add = new Address();
-        add.setFullName(address);
-        Coordinate coor = new Coordinate(lng,lat);
+        add.setFullName(request.getAddress());
+        Coordinate coor = new Coordinate(request.getLng(),request.getLat());
         Point point = geometryFactory.createPoint(coor);
         add.setLocation(point);
+        add = addressRepository.save(add);
 
         // 3. Tạo Order
         Order order = new Order();
@@ -107,6 +112,19 @@ public class OrderServiceImplementation implements OrderService {
         cartRepository.save(cart);
 
         return order;
+    }
+
+
+    @Override
+    public List<Order> getOrdersOfUser(User user) {
+        return orderRepository.findByCustomerOrderByCreatedAtDesc(user);
+    }
+
+    @Override
+    public Order getOrderOfUserById(User user, Long orderId) {
+        return orderRepository.findById(orderId)
+                .filter(o -> o.getCustomer().getId().equals(user.getId()))
+                .orElseThrow(() -> new RuntimeException("Order not found or not belong to user"));
     }
 
 }

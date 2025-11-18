@@ -128,23 +128,41 @@ export default function AddressPicker({
     setDroneDistance(distance);
   };
 
-  const reverseGeocode = async (latVal, lngVal) => {
-    const res = await fetch(
-      `https://rsapi.goong.io/Geocode?latlng=${latVal},${lngVal}&api_key=${GOONG_RS_KEY}`
-    );
-    const data = await res.json();
-    if (data.status === "OK") {
-      const r = data.results[0];
-      setAddressFull(r.formatted_address);
-      setLat(latVal);
-      setLng(lngVal);
-      onAddressChange?.({
-        full: r.formatted_address,
-        lat: latVal,
-        lng: lngVal,
+const reverseGeocode = async (latVal, lngVal) => {
+  const res = await fetch(
+    `https://rsapi.goong.io/Geocode?latlng=${latVal},${lngVal}&api_key=${GOONG_RS_KEY}`
+  );
+  const data = await res.json();
+  if (data.status === "OK") {
+    const r = data.results[0];
+    setAddressFull(r.formatted_address);
+    setLat(latVal);
+    setLng(lngVal);
+
+    onAddressChange?.({
+      full: r.formatted_address,
+      lat: latVal,
+      lng: lngVal,
+    });
+
+    // THÊM ĐOẠN NÀY
+    if (onLocationSelected && lngRestaurant != null && latRestaurant != null) {
+      const distance = calculateDroneDistance(
+        latRestaurant,
+        lngRestaurant,
+        latVal,
+        lngVal
+      ).toFixed(2);
+
+      onLocationSelected({
+        street: r.formatted_address, // dùng địa chỉ đầy đủ
+        location: { type: "Point", coordinates: [lngVal, latVal] },
+        distance: Number(distance),
       });
     }
-  };
+  }
+};
+
 
   const placeCustomerMarker = async (lngVal, latVal) => {
     const map = mapRef.current;

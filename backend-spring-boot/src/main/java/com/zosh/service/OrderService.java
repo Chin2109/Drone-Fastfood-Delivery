@@ -13,7 +13,7 @@ import com.zosh.request.CreateOrderFromCartRequest;
 import com.zosh.request.CreateOrderRequest;
 
 public interface OrderService {
-    public Order createOrderFromCart(CreateOrderFromCartRequest request,
-                                     String address, Double lng, Double lat);
-
+    public Order createOrderFromCart(CreateOrderFromCartRequest request);
+    List<Order> getOrdersOfUser(User user);
+    Order getOrderOfUserById(User user, Long orderId);
 }

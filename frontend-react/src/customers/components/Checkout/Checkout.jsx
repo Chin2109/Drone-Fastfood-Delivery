@@ -1,13 +1,10 @@
 import { CreditCard, MapPin, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { getAllCartItems } from "../../../State/Customers/Cart/cart.action";
-import {
-  checkoutPreview,
-  createOrder,
-} from "../../../State/Customers/Orders/Action";
+import { checkoutPreview } from "../../../State/Customers/Orders/Action";
 import { getRestaurantById } from "../../../State/Customers/Restaurant/restaurant.action";
 
 import Cart from "../../pages/Cart/Cart";
@@ -15,57 +12,48 @@ import { formatCurrency } from "../../util/formartCurrency";
 import AddressPicker from "../Address/AddressPicker";
 import SpecialInstruction from "../Product/SpecialInstruction";
 
-
 export default function Checkout() {
   const dispatch = useDispatch();
   const [selectedAddress, setSelectedAddress] = useState(null);
 
-  const location = useLocation();
   const { id } = useParams();
-  const { jwt, user } = useSelector((state) => state.auth);
+  const { jwt } = useSelector((state) => state.auth);
   const { cart } = useSelector((state) => state.cart);
   const { restaurant } = useSelector((state) => state.restaurant);
   const order = useSelector((state) => state.order.previews);
+
   useEffect(() => {
-    dispatch(getAllCartItems({ merchantId: id, jwt: jwt }));
+    if (!id || !jwt) return;
+    dispatch(getAllCartItems({ merchantId: id, jwt }));
     dispatch(getRestaurantById(id));
-  }, []);
+  }, [dispatch, id, jwt]);
 
-    // 👇 NEW: khi VNPay redirect về /checkout?vnp_... thì tự tạo đơn hàng
-  // useEffect(() => {
-  //   const params = new URLSearchParams(location.search);
-  //   const vnpTxnRef = params.get("vnp_TxnRef"); // hoặc lấy bất kỳ param nào của VNPay
-
-  //   if (vnpTxnRef && !hasCreatedOrder) {
-  //     const storedOrder = sessionStorage.getItem("pendingOrder");
-  //     if (storedOrder) {
-  //       const orderPayload = JSON.parse(storedOrder);
-
-  //       // luôn coi là thanh toán thành công => tạo đơn hàng
-  //       dispatch(createOrder({ order: orderPayload, jwt }));
-
-  //       // dọn dẹp
-  //       sessionStorage.removeItem("pendingOrder");
-  //       setHasCreatedOrder(true);
-
-  //       // Xoá query VNPay khỏi URL cho sạch
-  //       window.history.replaceState({}, document.title, location.pathname);
-  //     }
-  //   }
-  // }, [location.search, hasCreatedOrder, dispatch, jwt]);
-
+  // khi user chọn địa chỉ (AddressPicker gọi onLocationSelected)
   const handleLocationSelected = (tempAddressData) => {
-    setSelectedAddress(tempAddressData);
-    console.log(selectedAddress, tempAddressData)
+    // tempAddressData: { street, location: { type: "Point", coordinates: [lng, lat] }, distance }
+    const coords = tempAddressData.location?.coordinates || [];
+    const lng = coords[0];
+    const lat = coords[1];
+
+    const normalized = {
+      address: tempAddressData.street || "Địa chỉ tạm",
+      lng,
+      lat,
+      distance: tempAddressData.distance,
+    };
+
+    console.log("normalized address:", normalized, "raw:", tempAddressData);
+    setSelectedAddress(normalized);
+
     dispatch(
       checkoutPreview({
         merchantId: id,
         order: {
           cartItemId: cart?.data?.items?.map((i) => i.id) || [],
-          temporaryAddress: tempAddressData,
+          temporaryAddress: tempAddressData, // giữ nguyên format cho backend
           distance: tempAddressData.distance,
         },
-        jwt: jwt,
+        jwt,
       })
     );
   };
@@ -81,8 +69,40 @@ export default function Checkout() {
       return;
     }
 
+    // thông tin địa chỉ đã chuẩn hoá
+    const addressToSave = selectedAddress.address;
+    const lng = selectedAddress.lng;
+    const lat = selectedAddress.lat;
+
+    if (!addressToSave || lng == null || lat == null) {
+      console.error("selectedAddress bị thiếu field:", selectedAddress);
+      alert("Thiếu thông tin địa chỉ (address/lng/lat).");
+      return;
+    }
+
     try {
       const amount = order?.finalTotal || 0;
+
+      // lấy cartId từ dữ liệu giỏ hàng
+      const cartId = cart?.data?.cartId;
+      if (!cartId) {
+        alert("Không tìm thấy cartId, vui lòng tải lại trang.");
+        return;
+      }
+
+      // lưu thông tin cần để tạo order sau khi thanh toán thành công
+      const orderCreatePayload = {
+        cartId,
+        address: addressToSave,
+        lng,
+        lat,
+      };
+
+      console.log("Lưu info tạo đơn sau thanh toán:", orderCreatePayload);
+      sessionStorage.setItem(
+        "orderCreateInfo",
+        JSON.stringify(orderCreatePayload)
+      );
 
       console.log("Gọi tới backend VNPay với amount:", amount);
 
@@ -98,7 +118,9 @@ export default function Checkout() {
       if (!res.ok) {
         const text = await res.text();
         console.error("Backend error:", res.status, text);
-        alert("Backend trả lỗi khi tạo paymentUrl VNPay, mở console để xem chi tiết.");
+        alert(
+          "Backend trả lỗi khi tạo paymentUrl VNPay, mở console để xem chi tiết."
+        );
         return;
       }
 
@@ -106,7 +128,7 @@ export default function Checkout() {
       console.log("Data:", data);
 
       if (data?.paymentUrl) {
-        //direct sang sandbox VNPay
+        // direct sang sandbox VNPay
         window.location.href = data.paymentUrl;
       } else {
         alert("Không tạo được link thanh toán VNPay (paymentUrl null).");
@@ -117,8 +139,6 @@ export default function Checkout() {
       alert("Có lỗi khi khởi tạo thanh toán VNPay (network/CORS).");
     }
   };
-
-
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
@@ -133,6 +153,7 @@ export default function Checkout() {
         </div>
 
         <div className="p-8 space-y-6">
+          {/* Địa chỉ giao hàng */}
           <section className="border-b pb-8">
             <h2 className="text-xl font-semibold mb-3 flex items-center text-gray-800">
               <MapPin className="w-5 h-5 mr-2 text-red-500" /> Giao đến
@@ -143,6 +164,7 @@ export default function Checkout() {
             />
           </section>
 
+          {/* Tóm tắt đơn hàng */}
           <section className="border-b pb-8">
             <h2 className="text-xl font-semibold mb-6 flex items-center text-gray-800">
               <ShoppingCart className="w-5 h-5 mr-2 text-gray-600" />
@@ -152,14 +174,15 @@ export default function Checkout() {
             <SpecialInstruction />
           </section>
 
-          {/* 3. Chi tiết thanh toán (Payment Details) */}
+          {/* Hình thức thanh toán */}
           <section className="border-b pb-4">
             <h2 className="text-xl font-semibold flex items-center text-gray-800">
               <CreditCard className="w-5 h-5 mr-2 text-purple-600" />
-              Thanh toán qua stripe
+              Thanh toán qua VNPay
             </h2>
           </section>
 
+          {/* Thông tin thanh toán */}
           <section>
             <h2 className="text-xl font-semibold mb-3 flex items-center text-gray-800">
               <ShoppingCart className="w-5 h-5 mr-2 text-green-500" />
@@ -169,8 +192,7 @@ export default function Checkout() {
               <div>Phí đơn hàng: {formatCurrency(order?.subtotal)}</div>
               <div>Phí giao hàng: {formatCurrency(order?.deliveryFee)}</div>
               <div className="font-bold text-lg mt-2">
-                Tổng tiền:
-                {formatCurrency(order?.finalTotal)}
+                Tổng tiền: {formatCurrency(order?.finalTotal)}
               </div>
             </div>
           </section>
