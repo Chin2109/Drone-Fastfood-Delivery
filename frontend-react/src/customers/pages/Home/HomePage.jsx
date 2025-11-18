@@ -10,7 +10,7 @@ const HomePage = () => {
   const { menuItems, loading, error } = useSelector((state) => state.menu);
 
   useEffect(() => {
-    dispatch(getAllMenuItems({ page: 1, limit: 6 }));
+    dispatch(getAllMenuItems({ page: 1, limit: 50 }));
   }, []);
 
   return (
@@ -22,7 +22,7 @@ const HomePage = () => {
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage:
-              'url("https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1600&q=80")',
+              'url("https://i.dailymail.co.uk/1s/2024/01/18/03/80156527-12976399-image-a-29_1705548092012.jpg")',
             filter: "brightness(72%)",
           }}
         />

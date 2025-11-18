@@ -62,7 +62,7 @@ const MerchantDashboard = () => {
             Thông tin Nhà hàng của bạn
           </h1>
           <p className="text-gray-500 mt-1">
-            Đây là hồ sơ merchant đã đăng ký. Các trường chỉ để xem, không thể chỉnh sửa tại đây.
+            Đây là hồ sơ nhà hàng đã đăng ký. Các trường chỉ để xem, không thể chỉnh sửa tại đây.
           </p>
         </header>
 

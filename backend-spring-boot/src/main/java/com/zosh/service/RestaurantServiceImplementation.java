@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.zosh.domain.RestaurantRegisterImage;
 import com.zosh.domain.RestaurantStatus;
+import com.zosh.domain.USER_ROLE;
 import com.zosh.model.*;
 import com.zosh.repository.*;
 import com.zosh.request.Form1;
@@ -17,6 +18,7 @@ import com.zosh.response.RestaurantDetailResponse;
 import jakarta.transaction.Transactional;
 import org.locationtech.jts.geom.Coordinate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.zosh.Exception.RestaurantException;
@@ -60,6 +62,9 @@ public class RestaurantServiceImplementation implements RestaurantService {
 
 	@Autowired
 	private CloudinaryService cloudinaryService;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@Transactional
 	@Override
@@ -126,6 +131,14 @@ public class RestaurantServiceImplementation implements RestaurantService {
 		// 2) Gán address đã persist vào restaurant
 		restaurant.setAddress(savedAddress);
 
+		//Tạo tài khoản cho nhà hàng
+		User user = new User();
+		user.setRole(USER_ROLE.merchant);
+		user.setEmail(form.getMerchantEmail());
+		user.setPassword(passwordEncoder.encode(form.getMerchantPhoneNumber()));
+		User savedUser = userRepository.save(user);
+		restaurant.setOwner(savedUser);
+
 		Restaurant saved = restaurantRepository.save(restaurant);
 
 		// 5. Upload từng nhóm file theo type
@@ -133,6 +146,7 @@ public class RestaurantServiceImplementation implements RestaurantService {
 		cloudinaryService.saveImages(businessImages, saved, RestaurantRegisterImage.BUSINESS);
 		cloudinaryService.saveImages(kitchenImages, saved, RestaurantRegisterImage.KITCHEN);
 		cloudinaryService.saveImages(otherImages, saved, RestaurantRegisterImage.OTHERS);
+
 
 		return restaurantRepository.findByIdWithImages(saved.getId())
 				.orElseThrow(() -> new RuntimeException("Restaurant not found after creation"));

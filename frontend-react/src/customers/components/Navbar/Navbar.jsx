@@ -60,6 +60,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    navigate("/");
     handleCloseMenu();
   };
 
@@ -165,7 +166,7 @@ const Navbar = () => {
                 onClick={() =>
                   auth.user?.role === "merchant"
                     ? navigate("/admin")
-                    : navigate("/super-admin")
+                    : navigate("/merchantadmin")
                 }
               >
                 Profile

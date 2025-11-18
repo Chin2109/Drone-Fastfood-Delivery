@@ -31,4 +31,8 @@ public interface CartSerive {
     CheckoutCalculateResponse checkoutCalculate(Long userId,
                                                 Long merchantId,
                                                 CheckoutCalculateDto dto);
+
+    void removeCartItem(Long userId, Long merchantId, Long cartItemId);
+
+
 }

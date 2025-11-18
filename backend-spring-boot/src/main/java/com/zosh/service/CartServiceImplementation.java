@@ -460,4 +460,38 @@ public class CartServiceImplementation implements CartSerive {
 		return resp;
 	}
 
+	@Override
+	@Transactional
+	public void removeCartItem(Long userId, Long merchantId, Long cartItemId) {
+		// 1. Tìm cart theo user + merchant
+		Cart cart = cartRepository.findByUser_IdAndRestaurant_Id(userId, merchantId)
+				.orElseThrow(() -> new RuntimeException("Giỏ hàng không tồn tại."));
+
+		// 2. Tìm cartItem theo id
+		CartItem item = cartItemRepository.findById(cartItemId)
+				.orElseThrow(() -> new RuntimeException("Sản phẩm trong giỏ không tồn tại."));
+
+		// 3. Check cartItem có thuộc cart này không (tránh xóa nhầm cart khác)
+		if (item.getCart() == null || !item.getCart().getId().equals(cart.getId())) {
+			throw new RuntimeException("Sản phẩm không thuộc giỏ hàng hiện tại.");
+		}
+
+		// 4. Remove khỏi list để JPA orphanRemoval = true tự xoá
+		cart.getItems().remove(item);
+
+		// 5. Tính lại totalPrice của cart
+		long newTotal = cart.getItems()
+				.stream()
+				.mapToLong(ci -> ci.getTotalPrice() == null ? 0L : ci.getTotalPrice())
+				.sum();
+		cart.setTotalPrice(newTotal);
+
+		// 6. Lưu lại cart
+		cartRepository.save(cart);
+		// Không cần cartItemRepository.delete(item) vì orphanRemoval = true đã lo,
+		// nhưng nếu thích rõ ràng thì có thể thêm:
+		// cartItemRepository.delete(item);
+	}
+
+
 }

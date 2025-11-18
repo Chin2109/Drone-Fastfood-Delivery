@@ -11,8 +11,8 @@ const UserProfile = () => {
   const dispatch=useDispatch();
 
   const handleLogout=()=>{
-    navigate("/")
     dispatch(logout());
+    navigate("/");
   }
   return (
     <div className="min-h-[80vh] flex flex-col justify-center items-center text-center">

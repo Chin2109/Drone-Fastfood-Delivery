@@ -141,7 +141,7 @@ const OrdersPage = () => {
             order.restaurant?.name || "Không rõ nhà hàng";
 
           const amount =
-            (order.totalAmount ?? order.totalPrice ?? 0).toLocaleString(
+            (order.totalAmount + 15000 ?? order.totalPrice + 15000 ?? 0).toLocaleString(
               "vi-VN"
             );
 

@@ -74,7 +74,8 @@ const Restaurant = () => {
           <div className="w-full h-40 sm:h-52 overflow-hidden rounded-lg">
             <img
               src={
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1OyBBBk4CXNGuHuUCrayOcGU2WB4EDDcbxQ&s"
+                "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1600&q=80"
+
               }
               alt="Restaurant Banner"
               className="w-full h-full object-cover opacity-90"

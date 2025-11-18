@@ -156,4 +156,28 @@ public class CartController {
 				)
 		);
 	}
+
+	@DeleteMapping("/{merchantId}/{cartItemId}")
+	public ResponseEntity<?> deleteCartItem(
+			@PathVariable Long merchantId,
+			@PathVariable Long cartItemId,
+			Authentication authentication
+	) {
+		// Lấy userId từ JWT
+		String email = authentication.getName();
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new RuntimeException("User không tồn tại với email: " + email));
+		Long userId = user.getId();
+
+		// Gọi service xoá
+		cartService.removeCartItem(userId, merchantId, cartItemId);
+
+		// Trả message đơn giản
+		return ResponseEntity.ok(
+				Map.of(
+						"success", true,
+						"message", "Xóa sản phẩm khỏi giỏ hàng thành công"
+				)
+		);
+	}
 }

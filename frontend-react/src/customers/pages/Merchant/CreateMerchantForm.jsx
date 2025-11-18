@@ -159,7 +159,7 @@ const CreateMerchantForm = () => {
       <div className="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-2xl">
         <header className="mb-6">
           <h1 className="text-3xl font-extrabold text-green-600">
-            Đăng Ký Đối Tác GrabFood
+            Đăng Ký Đối Tác Drone Fast Food
           </h1>
           <p className="text-gray-500 mt-1">
             Vui lòng điền đầy đủ và chính xác thông tin để quá trình xét duyệt

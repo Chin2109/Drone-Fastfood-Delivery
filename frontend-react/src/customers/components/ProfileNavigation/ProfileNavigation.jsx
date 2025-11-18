@@ -19,6 +19,7 @@ const ProfileNavigation = ({ handleClose, open }) => {
 
   const handleLogout = () => {
     dispatch(logout());
+    navigate("/");
   };
 
   const handleNavigate = (item) => {

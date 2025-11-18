@@ -198,9 +198,9 @@ const OrderDetail = () => {
             </h2>
             <div className="space-y-2 text-black">
               <div>Phí đơn hàng: {formatCurrency(order.subtotal)}</div>
-              <div>Phí giao hàng: {formatCurrency(order.deliveryFee)}</div>
+              <div>Phí giao hàng: {formatCurrency(15000)}</div>
               <div className="font-bold text-lg mt-2">
-                Tổng tiền: {formatCurrency(order.finalTotal)}
+                Tổng tiền: {formatCurrency(order.finalTotal + 15000)}
               </div>
               <div className="mt-2">
                 <span className="font-semibold">Trạng thái đơn hàng: </span>
