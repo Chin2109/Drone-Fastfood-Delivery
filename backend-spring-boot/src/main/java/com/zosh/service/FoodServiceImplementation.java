@@ -155,6 +155,7 @@ public class FoodServiceImplementation implements FoodService {
                 IngredientsItem it = new IngredientsItem();
                 it.setName(itDTO.getName());
                 it.setInStoke(itDTO.isInStoke());
+                it.setPrice(itDTO.getPrice());
                 it.setCategory(ic);
                 ingredientsItems.add(it);
             }

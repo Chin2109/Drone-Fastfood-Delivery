@@ -22,6 +22,4 @@ public class OrderController {
         Order order = orderService.createOrderFromCart(request, address, lng, lat);
         return new ResponseEntity<>(order, HttpStatus.CREATED);
     }
-
-    
 }
