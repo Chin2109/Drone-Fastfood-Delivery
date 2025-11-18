@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const RestaurantAddFood = ( {merchantId} ) => {
+const MerchantAddFood = ( {merchantId} ) => {
   const [categories, setCategories] = useState([]);
   const [ingredientCategories, setIngredientCategories] = useState([]);
   const [ingredients, setIngredients] = useState([]);
@@ -197,4 +197,4 @@ const RestaurantAddFood = ( {merchantId} ) => {
   );
 };
 
-export default RestaurantAddFood;
+export default MerchantAddFood;

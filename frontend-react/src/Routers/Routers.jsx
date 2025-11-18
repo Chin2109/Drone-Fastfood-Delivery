@@ -9,7 +9,7 @@ import NotFound from "../customers/pages/NotFound/NotFound";
 import IngredientsList from "../Data/Demo";
 import CreateRestaurantForm from "../Admin/AddRestaurants/CreateRestaurantForm";
 import AdminRouters from "./AdminRouters";
-import RestaurantRoutes from "./MerchentRoutes.jsx";
+import RestaurantRoutes from "./MerchantRoutes.jsx";
 
 const Routers = () => {
   const { auth } = useSelector((store) => store);

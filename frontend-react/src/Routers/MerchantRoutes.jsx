@@ -1,14 +1,14 @@
 import { Route, Routes} from "react-router-dom";
-import RestaurantDashboard from "../merchent/pages/RestaurantDashboard.jsx";
-import RestaurantAddFood from "../merchent/pages/RestaurantAddFood.jsx";
+import MerchantDashboard from "../merchant/pages/MerchantDashboard.jsx";
+import MerchantAddFood from "../merchant/pages/MerchantAddFood.jsx";
 const RestaurantRoutes = () => {
     return (
         <div>
             <Routes>
-                <Route index element={<RestaurantDashboard/>}></Route>
+                <Route index element={<MerchantDashboard/>}></Route>
                 <Route path="orders" element={<div>Orders Page</div>}></Route>
                 <Route path="food" element={<div>Food Page</div>}></Route>
-                <Route path="add-food" element={<RestaurantAddFood merchantId={1}/>}></Route>
+                <Route path="add-food" element={<MerchantAddFood merchantId={1}/>}></Route>
             </Routes>
         </div>
     )

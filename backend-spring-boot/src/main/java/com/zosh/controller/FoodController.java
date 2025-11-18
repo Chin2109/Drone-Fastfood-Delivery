@@ -68,5 +68,6 @@ public class FoodController {
     public ResponseEntity<Food> addFood(@RequestBody AddFoodRequest request,
                                         @PathVariable("id") Long id) {
         return ResponseEntity.ok(foodService.createFood(request,id));
-    }
+    } 
+    
 }

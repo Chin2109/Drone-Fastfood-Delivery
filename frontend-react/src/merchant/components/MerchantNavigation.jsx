@@ -17,7 +17,7 @@ const menu = [
   { title: "Logout", icon: <LogoutIcon />, path: "/" },
 ];
 
-const RestaurantNavigation = ({ handleClose, open }) => {
+const MerchantNavigation = ({ handleClose, open }) => {
   const isSmallScreen = useMediaQuery("(max-width:1080px)");
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -64,4 +64,4 @@ const RestaurantNavigation = ({ handleClose, open }) => {
   );
 };
 
-export default RestaurantNavigation;
+export default MerchantNavigation;
