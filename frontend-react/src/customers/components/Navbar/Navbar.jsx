@@ -42,7 +42,7 @@ const Navbar = () => {
 
   const navigateToProfile = (e) => {
     user?.data?.roles[0] === "customer"
-      ? navigate("/my-profile")
+      ? navigate("/my-profile/orders")
       : navigate("/admin/restaurant");
   };
 
