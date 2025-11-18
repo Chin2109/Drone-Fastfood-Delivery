@@ -10,6 +10,7 @@ import com.zosh.mapper.FoodMapper;
 import com.zosh.model.*;
 import com.zosh.repository.CategoryRepository;
 import com.zosh.repository.FoodRepository;
+import com.zosh.repository.UserRepository;
 import com.zosh.request.AddCategoryRequest;
 import com.zosh.request.AddFoodRequest;
 import com.zosh.request.IngredientCategoryDTO;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 
 import com.zosh.repository.RestaurantRepository;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Service
@@ -35,6 +37,10 @@ public class FoodServiceImplementation implements FoodService {
     private RestaurantRepository restaurantRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     //mapper
     private ProductDetailResponse.ProductToppingGroupResponse toProductToppingGroupResponse(
@@ -118,7 +124,8 @@ public class FoodServiceImplementation implements FoodService {
 
     @Override
     public Category createCategory(AddCategoryRequest request, Long id) {
-        Restaurant restaurant = restaurantRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(id).orElseThrow();
+        Restaurant restaurant = restaurantRepository.findByOwner(user).orElseThrow();
 
         Category category = new Category();
         category.setName(request.getName());
@@ -127,31 +134,40 @@ public class FoodServiceImplementation implements FoodService {
         return categoryRepository.save(category);
     }
 
-	@Override
-    @Transactional //vì thực hiện save nhiều lần
-    public Food createFood(AddFoodRequest request, Long id) {
-        Category category = categoryRepository.findById(request.getFoodCategoryId()).orElseThrow();
-        Restaurant restaurant = restaurantRepository.findById(id).orElseThrow();
+    @Override
+    @Transactional
+    public Food createFood(AddFoodRequest request, MultipartFile image, Long id) {
+        User user = userRepository.findById(id).orElseThrow();
 
-        //entity food
+        Category category = categoryRepository.findById(request.getFoodCategoryId())
+                .orElseThrow();
+        Restaurant restaurant = restaurantRepository.findByOwner(user)
+                .orElseThrow();
+
         Food food = new Food();
         food.setName(request.getName());
         food.setPrice(request.getPrice());
         food.setDescription(request.getDescription());
         food.setFoodCategory(category);
-        food.setImage(request.getImage());
+
+        // 👇 BACKEND TỰ UPLOAD ẢNH & SET URL
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = cloudinaryService.uploadImage(image, "foods");
+            food.setImage(imageUrl);
+        }
+
         food.setAvailable(request.isAvailable());
         food.setCreationDate(request.getCreationDate());
 
         //mỗi food có một list ingredient category
         List<IngredientCategory> ingredientCategories = new ArrayList<>();
-        for(IngredientCategoryDTO icDTO : request.getIngredientCategoryDTOs()) {
+        for (IngredientCategoryDTO icDTO : request.getIngredientCategoryDTOs()) {
             IngredientCategory ic = new IngredientCategory();
             ic.setName(icDTO.getName());
             ic.setFood(food);
-            //mỗi ingredient category có một list ingredient item
+
             List<IngredientsItem> ingredientsItems = new ArrayList<>();
-            for(IngredientItemDTO itDTO : icDTO.getIngredients()) {
+            for (IngredientItemDTO itDTO : icDTO.getIngredients()) {
                 IngredientsItem it = new IngredientsItem();
                 it.setName(itDTO.getName());
                 it.setInStoke(itDTO.isInStoke());
@@ -159,11 +175,11 @@ public class FoodServiceImplementation implements FoodService {
                 it.setCategory(ic);
                 ingredientsItems.add(it);
             }
-            //lưu list ingredient item cho một ingredient category
+
             ic.setIngredients(ingredientsItems);
             ingredientCategories.add(ic);
         }
-        //lưu list ingredient category cho food
+
         food.setIngredientCategories(ingredientCategories);
 
         return foodRepository.save(food);
@@ -200,4 +216,17 @@ public class FoodServiceImplementation implements FoodService {
 
         return mapToProductDetail(food);
     }
+
+    @Override
+    public List<Category> getCategoriesOfCurrentMerchant(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new RuntimeException("User không tồn tại")
+        );
+
+        Restaurant restaurant = restaurantRepository.findByOwner(user)
+                .orElseThrow(() -> new RuntimeException("Restaurant không tồn tại cho user này"));
+
+        return categoryRepository.findByRestaurantId(restaurant.getId());
+    }
+
 }

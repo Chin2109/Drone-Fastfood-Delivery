@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.zosh.domain.OrderStatus;
 import com.zosh.repository.*;
 import com.zosh.request.CreateOrderFromCartRequest;
 import jakarta.transaction.Transactional;
@@ -40,6 +41,8 @@ public class OrderServiceImplementation implements OrderService {
     private AddressRepository addressRepository;
     @Autowired
     private GeometryFactory geometryFactory;
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
     @Override
     @Transactional
@@ -68,7 +71,7 @@ public class OrderServiceImplementation implements OrderService {
         order.setCreatedAt(new Date());
 
         // Sau khi thanh toán VNPay thành công nên để PAID, tùy bạn quy ước
-        order.setOrderStatus("PAID");
+        order.setOrderStatus(OrderStatus.RECEIVED.name());
 
         // set tạm để tránh null
         order.setTotalAmount(0L);
@@ -121,10 +124,37 @@ public class OrderServiceImplementation implements OrderService {
     }
 
     @Override
+    public List<Order> getOrdersOfRestaurant(User user) {
+        Restaurant restaurant = restaurantRepository.findByOwner(user)
+                .orElseThrow();
+
+        return orderRepository.findByRestaurantOrderByCreatedAtDesc(restaurant);
+    }
+
+    @Override
     public Order getOrderOfUserById(User user, Long orderId) {
-        return orderRepository.findById(orderId)
-                .filter(o -> o.getCustomer().getId().equals(user.getId()))
-                .orElseThrow(() -> new RuntimeException("Order not found or not belong to user"));
+        return orderRepository.findById(orderId).orElseThrow();
+//                .filter(o -> o.getCustomer().getId().equals(user.getId()))
+//                .orElseThrow(() -> new RuntimeException("Order not found or not belong to user"));
+    }
+
+    @Override
+    public Order updateOrderStatus(Long orderId, String newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        String current = order.getOrderStatus();
+
+        // Có thể thêm logic kiểm tra hợp lệ:
+        if ("RECEIVED".equals(current) && "CONFIRMED".equals(newStatus)) {
+            order.setOrderStatus(newStatus);
+        } else if ("CONFIRMED".equals(current) && "OUT_FOR_DELIVERY".equals(newStatus)) {
+            order.setOrderStatus(newStatus);
+        } else {
+            throw new RuntimeException("Trạng thái không hợp lệ");
+        }
+
+        return orderRepository.save(order);
     }
 
 }

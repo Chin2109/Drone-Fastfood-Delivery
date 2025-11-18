@@ -8,12 +8,13 @@ import com.zosh.response.FoodItemResponse;
 import com.zosh.response.FoodResponse;
 import com.zosh.response.ProductDetailResponse;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface FoodService {
 
-	public Food createFood(AddFoodRequest request, Long id);
+    Food createFood(AddFoodRequest request, MultipartFile image, Long id);
 
     public Category createCategory(AddCategoryRequest request, Long id);
 
@@ -24,6 +25,8 @@ public interface FoodService {
                                  int limit);
 
     public ProductDetailResponse findOneProductById(Long id);
+
+    List<Category> getCategoriesOfCurrentMerchant(Long userId);
 
 //	void deleteFood(Long foodId) throws FoodException;
 //

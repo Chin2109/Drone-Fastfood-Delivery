@@ -2,10 +2,15 @@ import goongjs from "@goongmaps/goong-js";
 import "@goongmaps/goong-js/dist/goong-js.css";
 import { useEffect, useRef, useState } from "react";
 
-export default function OrderRouteMap({ restaurant, deliveryLat, deliveryLng }) {
+export default function OrderRouteMap({
+  restaurant,
+  deliveryLat,
+  deliveryLng,
+  status = null,
+  onDroneArrived,
+}) {
   const GOONG_MAP_KEY = process.env.REACT_APP_GOONG_MAP_KEY;
 
-  // Lấy toạ độ nhà hàng giống AddressPicker
   const latRestaurant =
     restaurant?.address?.latitude ??
     restaurant?.address?.location?.coordinates?.[1] ??
@@ -20,6 +25,9 @@ export default function OrderRouteMap({ restaurant, deliveryLat, deliveryLng }) 
   const mapRef = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [distanceKm, setDistanceKm] = useState(null);
+
+  const animationRef = useRef(null);
+  const hasAnimatedRef = useRef(false); // ✅ đã animate drone chưa
 
   const calculateDroneDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // km
@@ -38,9 +46,6 @@ export default function OrderRouteMap({ restaurant, deliveryLat, deliveryLng }) 
   const drawDroneLine = (map, customerLat, customerLng) => {
     if (!map) return;
     if (lngRestaurant == null || latRestaurant == null) return;
-
-    // Nếu cẩn thận hơn, vẫn có thể check thêm:
-    // if (!map.isStyleLoaded()) return;
 
     if (map.getLayer("drone-line")) map.removeLayer("drone-line");
     if (map.getSource("drone-line")) map.removeSource("drone-line");
@@ -106,11 +111,9 @@ export default function OrderRouteMap({ restaurant, deliveryLat, deliveryLng }) 
 
     map.addControl(new goongjs.NavigationControl(), "bottom-right");
 
-    // chờ style load xong
     map.on("load", () => {
       setMapLoaded(true);
 
-      // marker nhà hàng (đỏ)
       new goongjs.Marker({ color: "red" })
         .setLngLat([lngRestaurant, latRestaurant])
         .addTo(map);
@@ -120,27 +123,94 @@ export default function OrderRouteMap({ restaurant, deliveryLat, deliveryLng }) 
 
     return () => {
       try {
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
         map.remove();
       } catch (e) {
         // ignore
       }
     };
-  }, [GOONG_MAP_KEY, lngRestaurant, latRestaurant]);
+  }, [GOONG_MAP_KEY, lngRestaurant, latRestaurant, restaurant]);
 
-  // 2. Khi map đã load & có toạ độ giao hàng → vẽ marker khách + line
+  // 2. Marker khách + line
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    if (!mapLoaded) return; // 👈 quan trọng
+    if (!mapLoaded) return;
     if (deliveryLat == null || deliveryLng == null) return;
 
-    // marker khách (xanh)
     new goongjs.Marker({ color: "blue" })
       .setLngLat([deliveryLng, deliveryLat])
       .addTo(map);
 
     drawDroneLine(map, deliveryLat, deliveryLng);
   }, [mapLoaded, deliveryLat, deliveryLng]);
+
+  // 3. Animate drone – chỉ chạy 1 lần khi OUT_FOR_DELIVERY
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (!mapLoaded) return;
+    if (status !== "OUT_FOR_DELIVERY") return;
+
+    if (
+      latRestaurant == null ||
+      lngRestaurant == null ||
+      deliveryLat == null ||
+      deliveryLng == null
+    )
+      return;
+
+    // Nếu đã animate thì thôi, không bay lại nữa
+    if (hasAnimatedRef.current) return;
+    hasAnimatedRef.current = true; // ✅ đánh dấu đã chạy
+
+    const droneMarker = new goongjs.Marker({ color: "orange" })
+      .setLngLat([lngRestaurant, latRestaurant])
+      .addTo(map);
+
+    const duration = 10000; // 10 giây
+    const start = performance.now();
+
+    const animate = (now) => {
+      const elapsed = now - start;
+      const t = Math.min(elapsed / duration, 1);
+
+      const currentLng =
+        lngRestaurant + (deliveryLng - lngRestaurant) * t;
+      const currentLat =
+        latRestaurant + (deliveryLat - latRestaurant) * t;
+
+      droneMarker.setLngLat([currentLng, currentLat]);
+
+      if (t < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      } else {
+        if (onDroneArrived) {
+          onDroneArrived();
+        }
+      }
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      try {
+        droneMarker.remove();
+      } catch (e) {}
+    };
+  }, [
+    mapLoaded,
+    status,
+    latRestaurant,
+    lngRestaurant,
+    deliveryLat,
+    deliveryLng,
+  ]); // không cần onDroneArrived trong deps, để tránh re-run vì callback đổi
 
   return (
     <div className="space-y-3 text-black">

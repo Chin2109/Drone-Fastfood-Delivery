@@ -15,5 +15,7 @@ import com.zosh.request.CreateOrderRequest;
 public interface OrderService {
     public Order createOrderFromCart(CreateOrderFromCartRequest request);
     List<Order> getOrdersOfUser(User user);
+    List<Order> getOrdersOfRestaurant(User user);
     Order getOrderOfUserById(User user, Long orderId);
+    Order updateOrderStatus(Long orderId, String newStatus);
 }

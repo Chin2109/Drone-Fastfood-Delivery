@@ -3,6 +3,7 @@ import { NavLink, Routes, Route } from "react-router-dom";
 import MerchantDashboard from "./MerchantDashboard";
 import MerchantOrders from "./MerchantOrders";
 import MerchantMenu from "./MerchantMenu.jsx";
+import MerchantOrderDetail from "./MerchantOrderDetail.jsx";
 
 const MerchantLayout = () => {
   return (
@@ -61,7 +62,9 @@ const MerchantLayout = () => {
         <Routes>
           <Route index element={<MerchantDashboard />} />   {/* /merchantadmin */}
           <Route path="orders" element={<MerchantOrders />} /> {/* /merchantadmin/orders */}
+          <Route path="orders/:orderId" element={<MerchantOrderDetail />} /> 
           <Route path="menu" element={<MerchantMenu />} />   {/* /merchantadmin/menu */}
+
         </Routes>
       </main>
     </div>

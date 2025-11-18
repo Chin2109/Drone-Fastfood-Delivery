@@ -17,10 +17,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import lombok.Data;
+import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString(exclude = {"orders", "addresses", "carts"})
 public class User {
 
 	@Id
@@ -33,8 +37,8 @@ public class User {
 
 	private USER_ROLE role;
 
-	@JsonIgnore
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+	@JsonIgnore
 	private List<Order> orders;
 
 	@OneToMany(mappedBy = "" ,cascade = CascadeType.ALL, orphanRemoval = true)
@@ -42,7 +46,8 @@ public class User {
 	
 	private String status;
 
-	@JsonIgnore
+
 	@OneToMany(mappedBy = "user")
+	@JsonIgnore
 	private List<Cart> carts;
 }

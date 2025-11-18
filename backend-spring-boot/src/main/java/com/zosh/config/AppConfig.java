@@ -45,7 +45,7 @@ public class AppConfig {
                         .requestMatchers(HttpMethod.GET, "/api/product/getone/*").permitAll()
                         .requestMatchers("/api/v1/payment/*").permitAll()
                         .requestMatchers("/api/order/create").permitAll()
-
+                        .requestMatchers("/api/order/*/status").permitAll()
 
                         .requestMatchers("/api/admin/**").hasAnyRole("RESTAURANT_OWNER","ADMIN")
                         .requestMatchers("/api/**").authenticated()

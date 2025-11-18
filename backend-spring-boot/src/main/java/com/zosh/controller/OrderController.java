@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -45,6 +46,19 @@ public class OrderController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/myres")
+    public List<OrderSummaryResponse> getMyOrdersRes(Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User không tồn tại với email: " + email));
+
+        List<Order> orders = orderService.getOrdersOfRestaurant(user);
+
+        return orders.stream()
+                .map(OrderMapper::toSummary)
+                .collect(Collectors.toList());
+    }
+
     @GetMapping("/{id}")
     public OrderDetailResponse getOrderDetail(
             @PathVariable Long id,
@@ -57,5 +71,16 @@ public class OrderController {
         Order order = orderService.getOrderOfUserById(user, id);
 
         return OrderMapper.toDetail(order);
+    }
+
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<Order> updateOrderStatus(
+            @PathVariable Long orderId,
+            @RequestBody Map<String, String> requestBody
+    ) {
+        String newStatus = requestBody.get("status"); // RECEIVED, CONFIRMED, OUT_FOR_DELIVERY...
+
+        Order updated = orderService.updateOrderStatus(orderId, newStatus);
+        return ResponseEntity.ok(updated);
     }
 }
