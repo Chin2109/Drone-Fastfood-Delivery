@@ -18,6 +18,7 @@ import ProductDetail from "../customers/pages/Product-detail/Product-detail";
 import CreateMerchantForm from "../customers/pages/Merchant/CreateMerchantForm";
 import Partner from "../customers/pages/Partner/Partner";
 import VnPayReturn from "../customers/pages/VnPayReturn";
+import MerchantLayout from "../customers/pages/Merchant/MerchantLayout"
 
 
 const CustomerRoutes = () => {
@@ -62,6 +63,13 @@ const CustomerRoutes = () => {
         
         
         <Route path="/checkout/vnpay-return" element={<VnPayReturn />} />
+
+        <Route
+          path="/merchantadmin/*"
+          element={
+              <MerchantLayout />
+          }
+        />
 
       </Routes>
     </div>

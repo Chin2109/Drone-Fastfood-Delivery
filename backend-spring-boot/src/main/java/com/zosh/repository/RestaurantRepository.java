@@ -3,6 +3,7 @@ package com.zosh.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.zosh.model.User;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,6 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
 
     @EntityGraph(attributePaths = {"address", "restaurantImages"})
     Optional<Restaurant> findWithAddressAndImagesById(Long id);
+
+    Optional<Restaurant> findByOwner(User owner);
 }

@@ -68,10 +68,34 @@ export const loginUser = (reqData) => async (dispatch) => {
     dispatch({ type: LOGIN_REQUEST });
 
     const { data } = await axios.post(`${API_URL}/auth/login`, reqData.data);
+
     const jwt = data.data.accessToken;
+    const user = data.data.user;
+
     if (jwt) localStorage.setItem("jwt", jwt);
-    reqData.navigate("/");
-    dispatch({ type: LOGIN_SUCCESS, payload: data.data });
+
+    // ====== 📌 CHECK ROLE ======
+    const role =
+      user.role ||                          // ví dụ: "MERCHANT"
+      user.roles?.[0] ||                    // ví dụ: ["MERCHANT"]
+      user.authorities?.[0]?.authority;     // ví dụ: [{ authority: "ROLE_MERCHANT" }]
+
+    const isMerchant =
+      role === "merchant" ||
+      role === "ROLE_MERCHANT" ||
+      user.roles?.includes("MERCHANT") ||
+      user.roles?.includes("ROLE_MERCHANT");
+
+    if (isMerchant) {
+      reqData.navigate("/merchantadmin");        // Trang admin merchant
+    } else {
+      reqData.navigate("/");                // Trang customer
+    }
+
+    dispatch({
+      type: LOGIN_SUCCESS,
+      payload: data.data,
+    });
   } catch (error) {
     dispatch({
       type: LOGIN_FAILURE,
@@ -82,6 +106,7 @@ export const loginUser = (reqData) => async (dispatch) => {
     });
   }
 };
+
 
 export const getUser = (reqData) => {
   return async (dispatch) => {
