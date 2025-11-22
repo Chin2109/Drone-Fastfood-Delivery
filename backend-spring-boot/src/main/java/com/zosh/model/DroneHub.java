@@ -7,19 +7,19 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-    @Entity
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Data
-    public class DroneHub {
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class DroneHub {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-        @OneToOne
-        @JoinColumn(name = "address_id", nullable = false)
-        private Address address;
+    @OneToOne
+    @JoinColumn(name = "address_id", nullable = false)
+    private Address address;
 
-        @OneToMany(mappedBy = "hub")
-        private List<Drone> droneList;
-    }
+    @OneToMany(mappedBy = "hub")
+    private List<Drone> droneList;
+}

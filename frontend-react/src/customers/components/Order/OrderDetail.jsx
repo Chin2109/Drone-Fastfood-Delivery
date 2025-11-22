@@ -6,12 +6,13 @@ import { formatCurrency } from "../../util/formartCurrency";
 import OrderRouteMap from "../Address/OrderRouteMap";
 
 const OrderDetail = () => {
-  const { orderId } = useParams();          // trùng với :orderId
+  const { orderId } = useParams();
   const { jwt } = useSelector((state) => state.auth);
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // droneArrived: dùng cho UX — khi map báo drone đã tới
   const [droneArrived, setDroneArrived] = useState(false);
   const [updatingDelivered, setUpdatingDelivered] = useState(false);
 
@@ -34,8 +35,9 @@ const OrderDetail = () => {
         const data = await res.json();
         setOrder(data);
 
-        const s = data.status || data.orderStatus || "DELIVERING";
-        if (s === "DELIVERED") {
+        // Nếu backend trả về DELIVERED hoặc RECEIVED thì coi như drone đã tới
+        const s = data.orderStatus || data.status || "PENDING";
+        if (s === "DELIVERED" || s === "RECEIVED") {
           setDroneArrived(true);
         }
       } catch (err) {
@@ -58,27 +60,38 @@ const OrderDetail = () => {
     return <div className="p-6">Không tìm thấy đơn hàng.</div>;
   }
 
-  const status = order.status || order.orderStatus || "DELIVERING";
-  const isOutForDelivery = status === "OUT_FOR_DELIVERY";
-  const isDelivered = status === "DELIVERED";
+  // Ưu tiên orderStatus từ backend
+  const status = order.orderStatus || order.status || "PENDING";
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case "RECEIVED":
+  // Logic hiển thị:
+  const isDelivering = status === "DELIVERING"; // drone đang bay
+  const isAwaitingCustomerConfirm = status === "DELIVERED"; // drone đã tới, chờ user bấm đã nhận
+  const isReceived = status === "RECEIVED"; // user đã nhận xong
+
+  const getStatusText = (s) => {
+    switch (s) {
+      case "PENDING":
         return "Đã tạo đơn hàng, chờ nhà hàng xác nhận";
+      case "ASSIGNED":
+        return "Admin đã gán drone cho đơn, chờ nhà hàng xác nhận";
       case "CONFIRMED":
         return "Nhà hàng đã xác nhận, đang chuẩn bị món ăn";
-      case "OUT_FOR_DELIVERY":
-        return "Đang giao hàng (drone đang bay...)";
+      case "FINISHED":
+        return "Nhà hàng đã chuẩn bị xong món, chờ drone bắt đầu bay";
+      case "DELIVERING":
+        return "Drone đang giao hàng, vui lòng chờ trong giây lát...";
       case "DELIVERED":
-        return "Đã giao hàng";
+        return "Drone đã tới vị trí giao hàng, vui lòng tới nhận và xác nhận";
+      case "RECEIVED":
+        return "Bạn đã nhận hàng thành công";
       default:
-        return status ? `Trạng thái: ${status}` : "Đang cập nhật...";
+        return s ? `Trạng thái: ${s}` : "Đang cập nhật...";
     }
   };
 
   const handleConfirmDelivered = async () => {
-    if (!droneArrived || updatingDelivered || !isOutForDelivery) return;
+    // Chỉ cho bấm khi đơn đang ở DELIVERED (drone đã đến) và chưa gửi request
+    if (!isAwaitingCustomerConfirm || updatingDelivered) return;
 
     try {
       setUpdatingDelivered(true);
@@ -91,18 +104,20 @@ const OrderDetail = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${jwt}`,
           },
-          body: JSON.stringify({ status: "DELIVERED" }),
+          // Giữ key "status" cho hợp với backend cũ,
+          // nhưng value chuyển sang "RECEIVED" theo enum mới.
+          body: JSON.stringify({ status: "RECEIVED" }),
         }
       );
 
       if (!res.ok) {
         const text = await res.text();
-        console.error("Lỗi cập nhật trạng thái DELIVERED:", res.status, text);
+        console.error("Lỗi cập nhật trạng thái RECEIVED:", res.status, text);
         return;
       }
 
       const updated = await res.json();
-      const newStatus = updated.orderStatus || updated.status || "DELIVERED";
+      const newStatus = updated.orderStatus || updated.status || "RECEIVED";
 
       setOrder((prev) => ({
         ...prev,
@@ -110,10 +125,10 @@ const OrderDetail = () => {
         orderStatus: newStatus,
       }));
 
-      // 🔁 Reload lại trang sau khi cập nhật xong
-      window.location.reload();
+      // đã nhận hàng rồi thì chắc chắn droneArrived = true
+      setDroneArrived(true);
     } catch (err) {
-      console.error("Lỗi gọi API cập nhật DELIVERED:", err);
+      console.error("Lỗi gọi API cập nhật RECEIVED:", err);
     } finally {
       setUpdatingDelivered(false);
     }
@@ -122,6 +137,7 @@ const OrderDetail = () => {
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
       <div className="max-w-4xl mx-auto bg-white shadow-2xl md:rounded-xl overflow-hidden">
+        {/* Header */}
         <div className="p-6 md:p-8 border-b border-gray-100 bg-white">
           <h1 className="text-2xl font-bold text-gray-900">
             Đơn hàng #{order.id || "----"}
@@ -151,16 +167,18 @@ const OrderDetail = () => {
                 onDroneArrived={() => setDroneArrived(true)}
               />
 
-              {isOutForDelivery && !droneArrived && (
+              {isDelivering && !droneArrived && (
                 <p className="text-sm text-blue-600 font-medium mt-2">
                   Drone đang bay tới bạn, vui lòng chờ trong giây lát...
                 </p>
               )}
-              {isOutForDelivery && droneArrived && (
+
+              {(isDelivering && droneArrived) || isAwaitingCustomerConfirm ? (
                 <p className="text-sm text-green-600 font-medium mt-2">
-                  Drone đã đến! Bạn có thể bấm "Đã nhận được hàng".
+                  Drone đã đến! Vui lòng ra vị trí nhận hàng và bấm "Đã nhận được
+                  hàng".
                 </p>
-              )}
+              ) : null}
             </div>
           </section>
 
@@ -211,14 +229,16 @@ const OrderDetail = () => {
             </div>
           </section>
 
-          {/* Nút xác nhận đã nhận hàng */}
-          {isOutForDelivery && (
+          {/* Nút xác nhận đã nhận hàng:
+              - Chỉ hiển thị khi đơn ở trạng thái DELIVERED (drone đã tới)
+          */}
+          {isAwaitingCustomerConfirm && (
             <button
-              disabled={!droneArrived || updatingDelivered}
+              disabled={updatingDelivered}
               onClick={handleConfirmDelivered}
               className={`flex-1 w-full py-3 font-bold rounded-lg shadow-lg text-base sm:text-lg transition duration-150 
               ${
-                !droneArrived || updatingDelivered
+                updatingDelivered
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-green-500 text-white hover:bg-green-600 cursor-pointer"
               }`}
@@ -227,9 +247,10 @@ const OrderDetail = () => {
             </button>
           )}
 
-          {isDelivered && (
+          {/* Thông báo khi đơn đã RECEIVED */}
+          {isReceived && (
             <div className="mt-2 text-center text-green-600 font-semibold">
-              Đơn hàng đã được giao thành công.
+              Đơn hàng đã được giao thành công. Cảm ơn bạn đã sử dụng dịch vụ!
             </div>
           )}
         </div>

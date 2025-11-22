@@ -19,6 +19,11 @@ const AddToCartButton = ({
   const merchantId = product?.category?.merchantId;
 
   const handleAddToCart = () => {
+    if (!jwt) {
+      navigate("/login");
+      return;
+    }
+    
     const selectedToppingIds = Object.values(toppingSelections)
       .flat()
       .filter(Boolean);

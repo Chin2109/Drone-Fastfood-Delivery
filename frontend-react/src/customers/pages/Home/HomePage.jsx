@@ -40,7 +40,7 @@ const HomePage = () => {
               </p>
 
               <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-                Xin chào buổi sáng 
+                Xin chào 
               </h1>
               <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 md:mb-6 leading-snug">
                 Hôm nay bạn muốn drone giao đồ ăn đến đâu?

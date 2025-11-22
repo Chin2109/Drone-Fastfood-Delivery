@@ -71,7 +71,7 @@ public class OrderServiceImplementation implements OrderService {
         order.setCreatedAt(new Date());
 
         // Sau khi thanh toán VNPay thành công nên để PAID, tùy bạn quy ước
-        order.setOrderStatus(OrderStatus.RECEIVED.name());
+        order.setOrderStatus(OrderStatus.PENDING.name());
 
         // set tạm để tránh null
         order.setTotalAmount(0L);

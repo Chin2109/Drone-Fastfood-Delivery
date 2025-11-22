@@ -7,6 +7,8 @@ import com.zosh.model.User;
 import com.zosh.request.LoginRequest;
 import com.zosh.request.RegisterUserRequest;
 import com.zosh.response.RegisterUserResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UserService {
 	public User registerUser(RegisterUserRequest request);
@@ -14,6 +16,11 @@ public interface UserService {
 	public User login(LoginRequest request);
 
 	public User getProfile(Long id);
+
+	public List<User> getAll();
+
+	Page<User> searchUsers(String keyword, String status, Pageable pageable);
+
 //
 //	public User findUserProfileByJwt(String jwt) throws UserException;
 //

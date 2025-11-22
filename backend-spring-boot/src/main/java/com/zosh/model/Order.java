@@ -60,4 +60,7 @@ public class Order {
 	
 	private Long totalPrice;
 
+	@ManyToOne
+	private Drone drone;
+
 }

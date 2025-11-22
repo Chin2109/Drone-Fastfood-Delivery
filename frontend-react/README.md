@@ -68,3 +68,230 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+```
+frontend-react
+├─ package-lock.json
+├─ package.json
+├─ public
+│  ├─ favicon.ico
+│  ├─ image1.jpg
+│  ├─ img1.jpg
+│  ├─ index.html
+│  ├─ logo192.png
+│  ├─ logo512.png
+│  ├─ manifest.json
+│  └─ robots.txt
+├─ README.md
+├─ src
+│  ├─ Admin
+│  │  ├─ AddRestaurants
+│  │  │  ├─ CreateRestaurantForm.jsx
+│  │  │  └─ Demo.jsx
+│  │  ├─ Admin.jsx
+│  │  ├─ AdminNavbar.jsx
+│  │  ├─ AdminSidebar.jsx
+│  │  ├─ Category
+│  │  │  ├─ Category.jsx
+│  │  │  └─ CreateCategory.jsx
+│  │  ├─ Dashboard
+│  │  │  ├─ AddRestaurantCard.jsx
+│  │  │  ├─ AdminDashboard.jsx
+│  │  │  ├─ RestaurantCard.jsx
+│  │  │  └─ RestaurantDashboard.jsx
+│  │  ├─ Details
+│  │  │  └─ Details.jsx
+│  │  ├─ Events
+│  │  │  ├─ EventCard.jsx
+│  │  │  └─ Events.jsx
+│  │  ├─ Food
+│  │  │  ├─ AddMenuForm.jsx
+│  │  │  ├─ MenuItemTable.jsx
+│  │  │  └─ RestaurantsMenu.jsx
+│  │  ├─ Ingredients
+│  │  │  ├─ CreateIngredientCategory.jsx
+│  │  │  ├─ CreateIngredientForm.jsx
+│  │  │  └─ Ingredients.jsx
+│  │  ├─ Orders
+│  │  │  ├─ OrderTable.jsx
+│  │  │  └─ RestaurantsOrder.jsx
+│  │  ├─ ReportCard
+│  │  │  └─ ReportCard.jsx
+│  │  └─ utils
+│  │     └─ UploadToCloudnary.js
+│  ├─ App.css
+│  ├─ App.js
+│  ├─ App.test.js
+│  ├─ config
+│  │  ├─ api.js
+│  │  └─ logic.jsx
+│  ├─ customers
+│  │  ├─ components
+│  │  │  ├─ Address
+│  │  │  │  ├─ AddressCard.jsx
+│  │  │  │  ├─ AddressPicker.jsx
+│  │  │  │  ├─ NewAddressModal.jsx
+│  │  │  │  └─ OrderRouteMap.jsx
+│  │  │  ├─ CartItem
+│  │  │  │  ├─ CartFooter.jsx
+│  │  │  │  ├─ CartHeader.jsx
+│  │  │  │  └─ CartItemCard.jsx
+│  │  │  ├─ Checkout
+│  │  │  │  └─ Checkout.jsx
+│  │  │  ├─ Login
+│  │  │  │  └─ Login.jsx
+│  │  │  ├─ MenuItem
+│  │  │  │  └─ MenuItemCard.jsx
+│  │  │  ├─ MultiItemCarousel
+│  │  │  │  ├─ CarouselItem.jsx
+│  │  │  │  └─ MultiItemCarousel.jsx
+│  │  │  ├─ Navbar
+│  │  │  │  ├─ Navbar.css
+│  │  │  │  └─ Navbar.jsx
+│  │  │  ├─ Order
+│  │  │  │  ├─ OrderCard.jsx
+│  │  │  │  └─ OrderDetail.jsx
+│  │  │  ├─ Product
+│  │  │  │  ├─ AddToCartButton.jsx
+│  │  │  │  ├─ ProductCard.jsx
+│  │  │  │  ├─ ProductImageInfo.jsx
+│  │  │  │  ├─ SpecialInstruction.jsx
+│  │  │  │  └─ ToppingGroup.jsx
+│  │  │  ├─ ProfileNavigation
+│  │  │  │  └─ ProfileNavigation.jsx
+│  │  │  ├─ Register
+│  │  │  │  └─ Register.jsx
+│  │  │  ├─ RestarentCard
+│  │  │  │  ├─ Restaurant.css
+│  │  │  │  └─ RestaurantCard.jsx
+│  │  │  ├─ Search
+│  │  │  │  ├─ PopularCuisines.jsx
+│  │  │  │  ├─ Search.jsx
+│  │  │  │  └─ SearchDishCard.jsx
+│  │  │  └─ Verify
+│  │  │     └─ Verify.jsx
+│  │  ├─ pages
+│  │  │  ├─ Auth
+│  │  │  │  ├─ Auth.jsx
+│  │  │  │  ├─ PasswordChangeSuccess.jsx
+│  │  │  │  ├─ ResetPasswordForm.jsx
+│  │  │  │  └─ ResetPaswordRequest.jsx
+│  │  │  ├─ Cart
+│  │  │  │  ├─ Cart.jsx
+│  │  │  │  └─ totalPay.js
+│  │  │  ├─ Favorite
+│  │  │  │  └─ Favorite.jsx
+│  │  │  ├─ Home
+│  │  │  │  ├─ HomePage.css
+│  │  │  │  └─ HomePage.jsx
+│  │  │  ├─ Merchant
+│  │  │  │  ├─ CreateMerchantForm.jsx
+│  │  │  │  ├─ MerchantDashboard.jsx
+│  │  │  │  ├─ MerchantLayout.jsx
+│  │  │  │  ├─ MerchantMenu.jsx
+│  │  │  │  ├─ MerchantOrderDetail.jsx
+│  │  │  │  └─ MerchantOrders.jsx
+│  │  │  ├─ NotFound
+│  │  │  │  └─ NotFound.jsx
+│  │  │  ├─ Orders
+│  │  │  │  └─ OrdersPage.jsx
+│  │  │  ├─ Partner
+│  │  │  │  └─ Partner.jsx
+│  │  │  ├─ PaymentSuccess
+│  │  │  │  └─ PaymentSuccess.jsx
+│  │  │  ├─ Product-detail
+│  │  │  │  └─ Product-detail.jsx
+│  │  │  ├─ Profile
+│  │  │  │  ├─ CustomerEvents.jsx
+│  │  │  │  ├─ Notifications.jsx
+│  │  │  │  ├─ Profile.jsx
+│  │  │  │  └─ UserProfile.jsx
+│  │  │  ├─ Restaurant
+│  │  │  │  └─ Restaurant.jsx
+│  │  │  ├─ UsersAdresses
+│  │  │  │  └─ UsersAddresses.jsx
+│  │  │  └─ VnPayReturn.jsx
+│  │  └─ util
+│  │     ├─ CategorizeIngredients.js
+│  │     ├─ checkRouter.jsx
+│  │     ├─ formartCurrency.jsx
+│  │     └─ ValidToOrder.jsx
+│  ├─ Data
+│  │  ├─ Demo.jsx
+│  │  ├─ index.html
+│  │  ├─ Ingredients.js
+│  │  ├─ restaurents.js
+│  │  └─ topMeels.js
+│  ├─ index.css
+│  ├─ index.js
+│  ├─ logo.svg
+│  ├─ reportWebVitals.js
+│  ├─ Routers
+│  │  ├─ AdminRouters.jsx
+│  │  ├─ CustomerRoutes.jsx
+│  │  └─ Routers.jsx
+│  ├─ setupTests.js
+│  ├─ State
+│  │  ├─ Admin
+│  │  │  ├─ Ingredients
+│  │  │  │  ├─ Action.js
+│  │  │  │  ├─ ActionType.js
+│  │  │  │  └─ Reducer.js
+│  │  │  ├─ Order
+│  │  │  │  ├─ ActionType.js
+│  │  │  │  ├─ restaurants.order.action.js
+│  │  │  │  └─ restaurants.order.reducer.js
+│  │  │  └─ Restaurants
+│  │  │     ├─ ActionType.js
+│  │  │     ├─ admin.action.js
+│  │  │     └─ Reducer.js
+│  │  ├─ Authentication
+│  │  │  ├─ Action.js
+│  │  │  ├─ ActionType.js
+│  │  │  └─ Reducer.js
+│  │  ├─ Customers
+│  │  │  ├─ Cart
+│  │  │  │  ├─ ActionCreators.js
+│  │  │  │  ├─ ActionTypes.js
+│  │  │  │  ├─ cart.action.js
+│  │  │  │  └─ Reducer.js
+│  │  │  ├─ Menu
+│  │  │  │  ├─ ActionCreators.js
+│  │  │  │  ├─ ActionType.js
+│  │  │  │  ├─ menu.action.js
+│  │  │  │  └─ Reducer.js
+│  │  │  ├─ Orders
+│  │  │  │  ├─ Action.js
+│  │  │  │  ├─ ActionCreators.js
+│  │  │  │  ├─ ActionTypes.js
+│  │  │  │  └─ order.reducer.js
+│  │  │  └─ Restaurant
+│  │  │     ├─ ActionCreateros.js
+│  │  │     ├─ ActionTypes.js
+│  │  │     ├─ Reducer.js
+│  │  │     └─ restaurant.action.js
+│  │  ├─ Store
+│  │  │  └─ store.js
+│  │  └─ SuperAdmin
+│  │     ├─ superAdmin.action.js
+│  │     ├─ superAdmin.actionType.js
+│  │     └─ superAdmin.reducer.js
+│  ├─ SuperAdmin
+│  │  ├─ RestaurantRequest
+│  │  │  ├─ RestaurantRequest.jsx
+│  │  │  └─ RestaurantRequestTable.jsx
+│  │  ├─ Restaurants
+│  │  │  ├─ RestaurantTable.jsx
+│  │  │  └─ SuperAdminRestaurant.jsx
+│  │  ├─ SuperAdmin.jsx
+│  │  ├─ SuperAdminCustomerTable
+│  │  │  ├─ Customers.jsx
+│  │  │  └─ SuperAdminCustomerTable.jsx
+│  │  ├─ SuperAdminDashboard
+│  │  │  └─ SuperAdminDashboard.jsx
+│  │  └─ SuperAdminSideBar.jsx
+│  └─ theme
+│     └─ DarkTheme.js
+└─ tailwind.config.js
+
+```

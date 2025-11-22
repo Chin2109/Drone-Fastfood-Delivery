@@ -10,4 +10,5 @@ public enum DroneStatus {
     DROPPING_OFF,//Drone đang lơ lửng, dùng cảm biến lực căng và xử lý ảnh để chờ người dùng lấy hàng
     RETURNING_TO_HUB,//Drone đã giao hàng thành công và đang bay về Trạm để kết thúc chuyến bay và sạc pin
     EMERGENCY_LANDING, //Drone gặp sự cố kỹ thuật/pin/thời tiết và đang thực hiện quy trình hạ cánh khẩn cấp
+    UNAVAILABLE, //xóa drone
 }

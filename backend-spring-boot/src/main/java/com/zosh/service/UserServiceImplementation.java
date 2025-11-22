@@ -9,6 +9,8 @@ import com.zosh.request.LoginRequest;
 import com.zosh.request.RegisterUserRequest;
 import com.zosh.response.RegisterUserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -79,6 +81,16 @@ public class UserServiceImplementation implements UserService {
 		}
 
 		return user.get();
+	}
+
+	@Override
+	public List<User> getAll() {
+		return userRepository.findAll();
+	}
+
+	@Override
+	public Page<User> searchUsers(String keyword, String status, Pageable pageable) {
+		return userRepository.searchUsers(keyword, status, pageable);
 	}
 
 //

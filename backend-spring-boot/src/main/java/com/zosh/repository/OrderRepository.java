@@ -3,6 +3,7 @@ package com.zosh.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.zosh.domain.OrderStatus;
 import com.zosh.model.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,6 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 	List<Order> findByCustomerOrderByCreatedAtDesc(User customer);
 
 	List<Order> findByRestaurantOrderByCreatedAtDesc(Restaurant restaurant);
+
+	List<Order> findByOrderStatus(String status);
 }

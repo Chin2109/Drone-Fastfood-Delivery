@@ -1,6 +1,8 @@
 
 package com.zosh.mapper;
 
+import com.zosh.dto.OrderDetailDto;
+import com.zosh.dto.OrderListItemDto;
 import com.zosh.model.Address;
 import com.zosh.model.OrderItem;
 import com.zosh.response.OrderDetailResponse;
@@ -122,6 +124,50 @@ public class OrderMapper {
             String formatted = VND_FORMAT.format(item.getTotalPrice()) + "₫";
             dto.setTotalPriceFormatted(formatted);
         }
+        return dto;
+    }
+
+    public static OrderListItemDto toListDto(Order o) {
+        OrderListItemDto dto = new OrderListItemDto();
+        dto.setId(o.getId());
+        dto.setCustomerName(o.getCustomer() != null ? o.getCustomer().getFullName() : null);
+        dto.setRestaurantName(o.getRestaurant() != null ? o.getRestaurant().getName() : null);
+        dto.setTotalPrice(o.getTotalPrice());
+        dto.setOrderStatus(o.getOrderStatus());
+        dto.setCreatedAt(o.getCreatedAt());
+
+        if (o.getDrone() != null) {
+            dto.setDroneId(o.getDrone().getId());
+            dto.setDroneStatus(o.getDrone().getStatus());
+        }
+        return dto;
+    }
+
+    public static OrderDetailDto toDetailDto(Order o) {
+        OrderDetailDto dto = new OrderDetailDto();
+        dto.setId(o.getId());
+        dto.setCustomerName(o.getCustomer() != null ? o.getCustomer().getFullName() : null);
+        // tuỳ entity User
+        // dto.setCustomerPhone(o.getCustomer() != null ? o.getCustomer().getPhone() : null);
+
+        if (o.getRestaurant() != null) {
+            dto.setRestaurantName(o.getRestaurant().getName());
+            // dto.setRestaurantAddress(...); // nếu có address
+        }
+
+        dto.setTotalPrice(o.getTotalPrice());
+        dto.setTotalItem(o.getTotalItem());
+        dto.setOrderStatus(o.getOrderStatus());
+        dto.setCreatedAt(o.getCreatedAt());
+
+        dto.setDeliveryAddressText(o.getDeliveryAddress().getFullName());
+
+        if (o.getDrone() != null) {
+            dto.setDroneId(o.getDrone().getId());
+            dto.setDroneStatus(o.getDrone().getStatus());
+            dto.setDroneSerial(o.getDrone().getSerialNumber());
+        }
+
         return dto;
     }
 }

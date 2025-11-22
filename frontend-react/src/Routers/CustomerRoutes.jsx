@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import CreateRestaurantForm from "../Admin/AddRestaurants/CreateRestaurantForm";
 import Checkout from "../customers/components/Checkout/Checkout";
 import LoginForm from "../customers/components/Login/Login";
 import Navbar from "../customers/components/Navbar/Navbar";
@@ -19,6 +18,7 @@ import CreateMerchantForm from "../customers/pages/Merchant/CreateMerchantForm";
 import Partner from "../customers/pages/Partner/Partner";
 import VnPayReturn from "../customers/pages/VnPayReturn";
 import MerchantLayout from "../customers/pages/Merchant/MerchantLayout"
+import AdminLayout from "../Admin/Admin";
 
 
 const CustomerRoutes = () => {
@@ -50,10 +50,7 @@ const CustomerRoutes = () => {
         <Route path="/my-profile/*" element={<Profile />} />
 
         <Route path="/search" element={<Search />} />
-        <Route
-          path="/admin/add-restaurant"
-          element={<CreateRestaurantForm />}
-        />
+
         <Route
           exact
           path="/password_change_success"
@@ -70,6 +67,8 @@ const CustomerRoutes = () => {
               <MerchantLayout />
           }
         />
+
+        <Route path="/admin/*" element={<AdminLayout />} />
 
       </Routes>
     </div>

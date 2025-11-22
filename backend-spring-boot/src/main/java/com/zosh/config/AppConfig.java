@@ -47,7 +47,6 @@ public class AppConfig {
                         .requestMatchers("/api/order/create").permitAll()
                         .requestMatchers("/api/order/*/status").permitAll()
 
-                        .requestMatchers("/api/admin/**").hasAnyRole("RESTAURANT_OWNER","ADMIN")
                         .requestMatchers("/api/**").authenticated()
 
                         .anyRequest().permitAll()

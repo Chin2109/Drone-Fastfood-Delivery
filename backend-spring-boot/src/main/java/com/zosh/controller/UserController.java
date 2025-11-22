@@ -5,6 +5,10 @@ import com.zosh.request.RegisterUserRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -73,6 +77,33 @@ public class UserController {
 		);
 	}
 
+	//nếu không muốn search/filter ở backend
+	@GetMapping("/getall")
+	ResponseEntity<?> getAll() {
+		return ResponseEntity.ok(userService.getAll());
+	}
 
+	@GetMapping("/search")
+	public ResponseEntity<?> searchUsers(
+			@RequestParam(required = false) String keyword,
+			@RequestParam(required = false) String status,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "20") int size
+	) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+
+		Page<User> result = userService.searchUsers(keyword, status, pageable);
+
+		// Trả về kiểu phổ biến: data + meta phân trang
+		return ResponseEntity.ok(
+				Map.of(
+						"content", result.getContent(),
+						"page", result.getNumber(),
+						"size", result.getSize(),
+						"totalElements", result.getTotalElements(),
+						"totalPages", result.getTotalPages()
+				)
+		);
+	}
 
 }

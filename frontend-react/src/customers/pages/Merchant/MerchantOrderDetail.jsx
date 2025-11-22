@@ -44,33 +44,45 @@ const MerchantOrderDetail = () => {
   if (loading) return <div className="p-6">Đang tải chi tiết đơn hàng...</div>;
   if (!order) return <div className="p-6">Không tìm thấy đơn hàng.</div>;
 
-  // Chuẩn hóa trạng thái
-  const rawStatus = order.orderStatus || order.status || "RECEIVED";
+  // ===== Chuẩn hoá trạng thái với enum mới =====
+  // OrderStatus: PENDING, ASSIGNED, CONFIRMED, FINISHED, DELIVERING, DELIVERED, RECEIVED
+  const rawStatus = order.orderStatus || order.status || "PENDING";
 
-  const statusMap = { CONFIRM: "CONFIRMED" };
-  const status = statusMap[rawStatus] || rawStatus;
+  // Nếu backend cũ trả nhầm kiểu "CONFIRM" thì map sang "CONFIRMED"
+  const legacyStatusMap = { CONFIRM: "CONFIRMED" };
+  const status = legacyStatusMap[rawStatus] || rawStatus;
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case "RECEIVED":
+  const getStatusText = (s) => {
+    switch (s) {
+      case "PENDING":
         return "Đã tạo đơn hàng, chờ nhà hàng xác nhận";
+      case "ASSIGNED":
+        return "Admin đã gán drone cho đơn, chờ nhà hàng xác nhận";
       case "CONFIRMED":
         return "Nhà hàng đã xác nhận, đang chuẩn bị món ăn";
-      case "OUT_FOR_DELIVERY":
-        return "Đang giao hàng";
+      case "FINISHED":
+        return "Nhà hàng đã chuẩn bị xong món, chờ admin cho drone bay";
+      case "DELIVERING":
+        return "Drone đang giao hàng tới khách";
       case "DELIVERED":
-        return "Đã giao hàng";
+        return "Drone đã giao đến vị trí khách, chờ khách xác nhận";
+      case "RECEIVED":
+        return "Khách đã nhận hàng thành công";
       default:
-        return status ? `Trạng thái: ${status}` : "Đang cập nhật...";
+        return s ? `Trạng thái: ${s}` : "Đang cập nhật...";
     }
   };
 
-  const getActionByStatus = (status) => {
-    switch (status) {
-      case "RECEIVED":
+  // ===== Action dành cho merchant =====
+  // Merchant có thể bấm:
+  // - PENDING  -> "Xác nhận đơn hàng" -> CONFIRMED
+  // - CONFIRMED -> "Đã chuẩn bị món"  -> FINISHED
+  const getActionByStatus = (s) => {
+    switch (s) {
+      case "PENDING":
         return { label: "Xác nhận đơn hàng", nextStatus: "CONFIRMED" };
       case "CONFIRMED":
-        return { label: "Sẵn sàng giao", nextStatus: "OUT_FOR_DELIVERY" };
+        return { label: "Đã chuẩn bị món", nextStatus: "FINISHED" };
       default:
         return null;
     }
@@ -92,6 +104,7 @@ const MerchantOrderDetail = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${jwt}`,
           },
+          // backend đang đọc "status" là String → dùng luôn
           body: JSON.stringify({ status: currentAction.nextStatus }),
         }
       );
@@ -110,10 +123,6 @@ const MerchantOrderDetail = () => {
         orderStatus: newStatus,
         status: newStatus,
       }));
-
-      // ⭐⭐⭐ Reload trang sau khi update xong ⭐⭐⭐
-      window.location.reload();
-
     } catch (err) {
       console.error("Lỗi gọi API cập nhật trạng thái:", err);
     } finally {
@@ -124,6 +133,7 @@ const MerchantOrderDetail = () => {
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
       <div className="max-w-4xl mx-auto bg-white shadow-2xl md:rounded-xl overflow-hidden">
+        {/* Header */}
         <div className="p-6 md:p-8 border-b border-gray-100 bg-white">
           <h1 className="text-2xl font-bold text-gray-900">
             Đơn hàng #{order.id}
@@ -132,7 +142,7 @@ const MerchantOrderDetail = () => {
         </div>
 
         <div className="p-8 space-y-6">
-          {/* Địa chỉ */}
+          {/* Địa chỉ giao */}
           <section className="border-b pb-8">
             <h2 className="text-xl font-semibold mb-3 flex items-center text-gray-800">
               <MapPin className="w-5 h-5 mr-2 text-red-500" /> Giao đến
@@ -151,7 +161,7 @@ const MerchantOrderDetail = () => {
             </div>
           </section>
 
-          {/* Tóm tắt đơn */}
+          {/* Tóm tắt đơn hàng */}
           <section className="border-b pb-8">
             <h2 className="text-xl font-semibold mb-6 flex items-center text-gray-800">
               <ShoppingCart className="w-5 h-5 mr-2 text-gray-600" />
@@ -177,7 +187,7 @@ const MerchantOrderDetail = () => {
             </h2>
           </section>
 
-          {/* Thông tin thanh toán */}
+          {/* Thông tin thanh toán + trạng thái */}
           <section>
             <h2 className="text-xl font-semibold mb-3 flex items-center text-gray-800">
               <ShoppingCart className="w-5 h-5 mr-2 text-green-500" />
@@ -185,7 +195,10 @@ const MerchantOrderDetail = () => {
             </h2>
             <div className="space-y-2 text-black">
               <div>Phí đơn hàng: {formatCurrency(order.subtotal)}</div>
-              <div>Phí giao hàng: {formatCurrency(order.deliveryFee + 15000)}</div>
+              {/* tuỳ logic của bạn, tạm giữ như cũ */}
+              <div>
+                Phí giao hàng: {formatCurrency(order.deliveryFee + 15000)}
+              </div>
               <div className="font-bold text-lg mt-2">
                 Tổng tiền: {formatCurrency(order.finalTotal + 15000)}
               </div>
@@ -196,7 +209,7 @@ const MerchantOrderDetail = () => {
             </div>
           </section>
 
-          {/* Nút */}
+          {/* Nút hành động cho merchant */}
           {currentAction && (
             <button
               disabled={updatingStatus}
