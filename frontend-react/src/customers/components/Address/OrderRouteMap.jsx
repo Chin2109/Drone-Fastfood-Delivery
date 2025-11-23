@@ -1,15 +1,20 @@
 import goongjs from "@goongmaps/goong-js";
 import "@goongmaps/goong-js/dist/goong-js.css";
 import { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import { api } from "../../../config/api"; // điều chỉnh đường dẫn nếu cần
 
 export default function OrderRouteMap({
   restaurant,
   deliveryLat,
   deliveryLng,
   status = null,
+  orderId = null,
   onDroneArrived,
 }) {
   const GOONG_MAP_KEY = process.env.REACT_APP_GOONG_MAP_KEY;
+  const { jwt } = useSelector((state) => state.auth || {});
 
   const latRestaurant =
     restaurant?.address?.latitude ??
@@ -27,7 +32,13 @@ export default function OrderRouteMap({
   const [distanceKm, setDistanceKm] = useState(null);
 
   const animationRef = useRef(null);
-  const hasAnimatedRef = useRef(false); // ✅ đã animate drone chưa
+  const hasAnimatedRef = useRef(false);
+  const deliveredCalledRef = useRef(false); // đã gọi update -> DELIVERED chưa
+  const droneMarkerRef = useRef(null);
+  const customerMarkerRef = useRef(null);
+  const restaurantMarkerRef = useRef(null);
+  const [arrived, setArrived] = useState(false); // show button when true
+  const [loading, setLoading] = useState(false);
 
   const calculateDroneDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // km
@@ -47,8 +58,10 @@ export default function OrderRouteMap({
     if (!map) return;
     if (lngRestaurant == null || latRestaurant == null) return;
 
-    if (map.getLayer("drone-line")) map.removeLayer("drone-line");
-    if (map.getSource("drone-line")) map.removeSource("drone-line");
+    try {
+      if (map.getLayer("drone-line")) map.removeLayer("drone-line");
+      if (map.getSource("drone-line")) map.removeSource("drone-line");
+    } catch (e) {}
 
     const lineCoords = [
       [lngRestaurant, latRestaurant],
@@ -68,8 +81,8 @@ export default function OrderRouteMap({
       type: "line",
       source: "drone-line",
       paint: {
-        "line-color": "#00bcd4",
-        "line-width": 4,
+        "line-color": "#f59e0b",
+        "line-width": 3,
         "line-dasharray": [2, 2],
       },
     });
@@ -88,7 +101,98 @@ export default function OrderRouteMap({
     setDistanceKm(dist);
   };
 
-  // 1. Khởi tạo map
+  // CALL API to set DELIVERED (automatic on arrival)
+  const callMarkDelivered = async (id) => {
+    if (!id) {
+      console.warn("[OrderRouteMap] callMarkDelivered skipped — missing orderId");
+      return null;
+    }
+    if (deliveredCalledRef.current) return null; // guard
+    deliveredCalledRef.current = true;
+
+    const payload = { status: "DELIVERED" };
+    const token = jwt || localStorage.getItem("jwt") || null;
+
+    try {
+      const res = await api.put(`/order/${id}/status`, payload, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      console.log("[OrderRouteMap] auto-update DELIVERED success", res.status);
+      return res.data;
+    } catch (err) {
+      console.error("[OrderRouteMap] auto-update DELIVERED failed", err?.response?.status ?? err?.message);
+      // retry with explicit axios if 401/403 and token exists
+      if ((err?.response?.status === 401 || err?.response?.status === 403) && token) {
+        try {
+          const absoluteUrl = api?.defaults?.baseURL
+            ? `${api.defaults.baseURL.replace(/\/$/, "")}/order/${id}/status`
+            : `/order/${id}/status`;
+          const r2 = await axios.put(absoluteUrl, payload, {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
+          });
+          console.log("[OrderRouteMap] auto-update retry success", r2.status);
+          return r2.data;
+        } catch (err2) {
+          console.error("[OrderRouteMap] auto-update retry failed", err2);
+        }
+      }
+      return null;
+    }
+  };
+
+  // CALL API to set RECEIVED (user click)
+  const updateOrderStatusReceived = async () => {
+    const id = orderId;
+    if (!id) {
+      console.warn("[OrderRouteMap] update RECEIVED skipped — missing orderId");
+      return null;
+    }
+
+    setLoading(true);
+    const payload = { status: "RECEIVED" };
+    const token = jwt || localStorage.getItem("jwt") || null;
+
+    try {
+      const res = await api.put(`/order/${id}/status`, payload, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      console.log("[OrderRouteMap] update RECEIVED success", res.status);
+      setArrived(false);
+      if (typeof onDroneArrived === "function") {
+        try { onDroneArrived(res.data); } catch (e) {}
+      }
+      return res.data;
+    } catch (err) {
+      console.error("[OrderRouteMap] update RECEIVED failed", err?.response?.status ?? err?.message);
+
+      if ((err?.response?.status === 401 || err?.response?.status === 403) && token) {
+        try {
+          const absoluteUrl = api?.defaults?.baseURL
+            ? `${api.defaults.baseURL.replace(/\/$/, "")}/order/${id}/status`
+            : `/order/${id}/status`;
+          const r2 = await axios.put(absoluteUrl, payload, {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
+          });
+          console.log("[OrderRouteMap] retry RECEIVED success", r2.status);
+          setArrived(false);
+          if (typeof onDroneArrived === "function") {
+            try { onDroneArrived(r2.data); } catch (e) {}
+          }
+          return r2.data;
+        } catch (err2) {
+          console.error("[OrderRouteMap] retry RECEIVED failed", err2);
+        }
+      }
+
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ---------- map init ----------
   useEffect(() => {
     if (!GOONG_MAP_KEY) {
       console.error("⚠️ Missing REACT_APP_GOONG_MAP_KEY");
@@ -114,7 +218,12 @@ export default function OrderRouteMap({
     map.on("load", () => {
       setMapLoaded(true);
 
-      new goongjs.Marker({ color: "red" })
+      if (restaurantMarkerRef.current) {
+        try {
+          restaurantMarkerRef.current.remove();
+        } catch (e) {}
+      }
+      restaurantMarkerRef.current = new goongjs.Marker({ color: "red" })
         .setLngLat([lngRestaurant, latRestaurant])
         .addTo(map);
     });
@@ -123,8 +232,15 @@ export default function OrderRouteMap({
 
     return () => {
       try {
-        if (animationRef.current) {
-          cancelAnimationFrame(animationRef.current);
+        if (animationRef.current) cancelAnimationFrame(animationRef.current);
+        if (droneMarkerRef.current) {
+          try { droneMarkerRef.current.remove(); } catch (_) {}
+        }
+        if (customerMarkerRef.current) {
+          try { customerMarkerRef.current.remove(); } catch (_) {}
+        }
+        if (restaurantMarkerRef.current) {
+          try { restaurantMarkerRef.current.remove(); } catch (_) {}
         }
         map.remove();
       } catch (e) {
@@ -133,26 +249,32 @@ export default function OrderRouteMap({
     };
   }, [GOONG_MAP_KEY, lngRestaurant, latRestaurant, restaurant]);
 
-  // 2. Marker khách + line
+  // ---------- customer marker + line ----------
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     if (!mapLoaded) return;
     if (deliveryLat == null || deliveryLng == null) return;
 
-    new goongjs.Marker({ color: "blue" })
+    if (customerMarkerRef.current) {
+      try {
+        customerMarkerRef.current.remove();
+      } catch (e) {}
+    }
+
+    customerMarkerRef.current = new goongjs.Marker({ color: "blue" })
       .setLngLat([deliveryLng, deliveryLat])
       .addTo(map);
 
     drawDroneLine(map, deliveryLat, deliveryLng);
   }, [mapLoaded, deliveryLat, deliveryLng]);
 
-  // 3. Animate drone – chỉ chạy 1 lần khi OUT_FOR_DELIVERY
+  // ---------- animate; auto-mark DELIVERED on arrival; show button for RECEIVED ----------
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     if (!mapLoaded) return;
-    if (status !== "OUT_FOR_DELIVERY") return;
+    if (status !== "DELIVERING") return;
 
     if (
       latRestaurant == null ||
@@ -162,47 +284,84 @@ export default function OrderRouteMap({
     )
       return;
 
-    // Nếu đã animate thì thôi, không bay lại nữa
     if (hasAnimatedRef.current) return;
-    hasAnimatedRef.current = true; // ✅ đánh dấu đã chạy
+    hasAnimatedRef.current = true;
 
-    const droneMarker = new goongjs.Marker({ color: "orange" })
+    // tạo dot vàng đơn giản làm drone (div marker)
+    const el = document.createElement("div");
+    el.style.width = "14px";
+    el.style.height = "14px";
+    el.style.borderRadius = "50%";
+    el.style.background = "#fbbf24";
+    el.style.boxShadow = "0 0 6px rgba(0,0,0,0.2)";
+    el.style.border = "2px solid rgba(255,255,255,0.8)";
+
+    const droneMarker = new goongjs.Marker({ element: el })
       .setLngLat([lngRestaurant, latRestaurant])
       .addTo(map);
 
-    const duration = 10000; // 10 giây
+    droneMarkerRef.current = droneMarker;
+
+    const distKm = calculateDroneDistance(
+      latRestaurant,
+      lngRestaurant,
+      deliveryLat,
+      deliveryLng
+    );
+
+    // FASTER: ~4s per km, clamp min 3000ms, max 20000ms
+    const durationPerKm = 4000;
+    let duration = Math.max(3000, Math.min(20000, Math.round(distKm * durationPerKm)));
+    if (!isFinite(duration) || duration <= 0) duration = 4000;
+
     const start = performance.now();
 
     const animate = (now) => {
       const elapsed = now - start;
       const t = Math.min(elapsed / duration, 1);
 
-      const currentLng =
-        lngRestaurant + (deliveryLng - lngRestaurant) * t;
-      const currentLat =
-        latRestaurant + (deliveryLat - latRestaurant) * t;
+      const currentLng = lngRestaurant + (deliveryLng - lngRestaurant) * t;
+      const currentLat = latRestaurant + (deliveryLat - latRestaurant) * t;
 
       droneMarker.setLngLat([currentLng, currentLat]);
 
       if (t < 1) {
         animationRef.current = requestAnimationFrame(animate);
       } else {
-        if (onDroneArrived) {
-          onDroneArrived();
-        }
+        // animation hoàn tất: tự mark DELIVERED (best-effort)
+        (async () => {
+          // try mark delivered even if orderId missing (will log)
+          await callMarkDelivered(orderId).catch((e) => {
+            console.error("[OrderRouteMap] callMarkDelivered error", e);
+          });
+
+          // sau đó show nút để user bấm RECEIVED
+          setArrived(true);
+
+          // thông báo parent (animation done)
+          if (typeof onDroneArrived === "function") {
+            try { onDroneArrived(); } catch (e) {}
+          }
+
+          // remove marker sau 1s (vẫn giữ nút)
+          setTimeout(() => {
+            try {
+              droneMarker.remove();
+              droneMarkerRef.current = null;
+            } catch (e) {}
+          }, 1000);
+        })();
       }
     };
 
     animationRef.current = requestAnimationFrame(animate);
 
     return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-      try {
-        droneMarker.remove();
-      } catch (e) {}
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      try { droneMarker.remove(); } catch (e) {}
+      droneMarkerRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     mapLoaded,
     status,
@@ -210,7 +369,9 @@ export default function OrderRouteMap({
     lngRestaurant,
     deliveryLat,
     deliveryLng,
-  ]); // không cần onDroneArrived trong deps, để tránh re-run vì callback đổi
+    orderId,
+    onDroneArrived,
+  ]);
 
   return (
     <div className="space-y-3 text-black">
@@ -224,6 +385,20 @@ export default function OrderRouteMap({
         ref={mapContainer}
         className="goong-map-container h-64 rounded-xl shadow-inner"
       />
+
+      {arrived && (
+        <div className="mt-3">
+          <button
+            onClick={async () => {
+              await updateOrderStatusReceived();
+            }}
+            disabled={loading}
+            className="px-4 py-2 rounded bg-green-600 text-white text-sm disabled:opacity-50"
+          >
+            {loading ? "Đang xử lý..." : "Đã nhận được hàng"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

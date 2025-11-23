@@ -144,15 +144,7 @@ public class OrderServiceImplementation implements OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         String current = order.getOrderStatus();
-
-        // Có thể thêm logic kiểm tra hợp lệ:
-        if ("RECEIVED".equals(current) && "CONFIRMED".equals(newStatus)) {
-            order.setOrderStatus(newStatus);
-        } else if ("CONFIRMED".equals(current) && "OUT_FOR_DELIVERY".equals(newStatus)) {
-            order.setOrderStatus(newStatus);
-        } else {
-            throw new RuntimeException("Trạng thái không hợp lệ");
-        }
+        order.setOrderStatus(newStatus);
 
         return orderRepository.save(order);
     }

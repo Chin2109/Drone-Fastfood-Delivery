@@ -1,5 +1,5 @@
 import { CreditCard, MapPin, ShoppingCart } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { formatCurrency } from "../../util/formartCurrency";
@@ -7,7 +7,7 @@ import OrderRouteMap from "../Address/OrderRouteMap";
 
 const OrderDetail = () => {
   const { orderId } = useParams();
-  const { jwt } = useSelector((state) => state.auth);
+  const { jwt } = useSelector((state) => state.auth || {});
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,41 +16,45 @@ const OrderDetail = () => {
   const [droneArrived, setDroneArrived] = useState(false);
   const [updatingDelivered, setUpdatingDelivered] = useState(false);
 
-  useEffect(() => {
-    const fetchOrderDetail = async () => {
-      try {
-        const res = await fetch(`http://localhost:5454/api/order/${orderId}`, {
-          headers: {
-            Authorization: `Bearer ${jwt}`,
-          },
-        });
+  const fetchOrderDetail = useCallback(async () => {
+    if (!jwt || !orderId) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`http://localhost:5454/api/order/${orderId}`, {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      });
 
-        if (!res.ok) {
-          const text = await res.text();
-          console.error("Lỗi lấy chi tiết đơn hàng:", res.status, text);
-          setLoading(false);
-          return;
-        }
-
-        const data = await res.json();
-        setOrder(data);
-
-        // Nếu backend trả về DELIVERED hoặc RECEIVED thì coi như drone đã tới
-        const s = data.orderStatus || data.status || "PENDING";
-        if (s === "DELIVERED" || s === "RECEIVED") {
-          setDroneArrived(true);
-        }
-      } catch (err) {
-        console.error("Fetch order detail error:", err);
-      } finally {
-        setLoading(false);
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Lỗi lấy chi tiết đơn hàng:", res.status, text);
+        setOrder(null);
+        return;
       }
-    };
 
-    if (jwt && orderId) {
-      fetchOrderDetail();
+      const data = await res.json();
+      setOrder(data);
+
+      // Nếu backend trả về DELIVERED hoặc RECEIVED thì coi như drone đã tới
+      const s = data.orderStatus || data.status || "PENDING";
+      if (s === "DELIVERED" || s === "RECEIVED") {
+        setDroneArrived(true);
+      } else {
+        // nếu backend chưa nói DELIVERED, giữ trạng thái trước (không reset droneArrived)
+        // (do map có thể thông báo trước khi backend cập nhật)
+      }
+    } catch (err) {
+      console.error("Fetch order detail error:", err);
+      setOrder(null);
+    } finally {
+      setLoading(false);
     }
   }, [jwt, orderId]);
+
+  useEffect(() => {
+    fetchOrderDetail();
+  }, [fetchOrderDetail]);
 
   if (loading) {
     return <div className="p-6">Đang tải chi tiết đơn hàng...</div>;
@@ -67,6 +71,10 @@ const OrderDetail = () => {
   const isDelivering = status === "DELIVERING"; // drone đang bay
   const isAwaitingCustomerConfirm = status === "DELIVERED"; // drone đã tới, chờ user bấm đã nhận
   const isReceived = status === "RECEIVED"; // user đã nhận xong
+
+  const // helper to show button when either server says DELIVERED OR local map says arrived
+    shouldShowConfirmButton =
+      isAwaitingCustomerConfirm || (isDelivering && droneArrived);
 
   const getStatusText = (s) => {
     switch (s) {
@@ -90,25 +98,28 @@ const OrderDetail = () => {
   };
 
   const handleConfirmDelivered = async () => {
-    // Chỉ cho bấm khi đơn đang ở DELIVERED (drone đã đến) và chưa gửi request
-    if (!isAwaitingCustomerConfirm || updatingDelivered) return;
+    // Chỉ cho bấm khi không đang gửi request
+    if (updatingDelivered) return;
+
+    // If we don't have order.id (should), use orderId param
+    const id = order.id ?? orderId;
+    if (!id) {
+      console.error("Không có order id để gửi cập nhật RECEIVED");
+      return;
+    }
 
     try {
       setUpdatingDelivered(true);
 
-      const res = await fetch(
-        `http://localhost:5454/api/order/${order.id}/status`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${jwt}`,
-          },
-          // Giữ key "status" cho hợp với backend cũ,
-          // nhưng value chuyển sang "RECEIVED" theo enum mới.
-          body: JSON.stringify({ status: "RECEIVED" }),
-        }
-      );
+      const res = await fetch(`http://localhost:5454/api/order/${id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwt}`,
+        },
+        // server expects "status" key; new enum value is RECEIVED
+        body: JSON.stringify({ status: "RECEIVED" }),
+      });
 
       if (!res.ok) {
         const text = await res.text();
@@ -119,6 +130,7 @@ const OrderDetail = () => {
       const updated = await res.json();
       const newStatus = updated.orderStatus || updated.status || "RECEIVED";
 
+      // Cập nhật local order state ngay
       setOrder((prev) => ({
         ...prev,
         status: newStatus,
@@ -134,6 +146,26 @@ const OrderDetail = () => {
     }
   };
 
+  // Called from map when drone reaches customer (map may call even if backend hasn't updated)
+  const handleDroneArrived = async () => {
+    setDroneArrived(true);
+
+    // set local status to DELIVERED for immediate UX if server not yet updated
+    setOrder((prev) => ({
+      ...prev,
+      status: prev?.status === "RECEIVED" ? "RECEIVED" : "DELIVERED",
+      orderStatus: prev?.orderStatus === "RECEIVED" ? "RECEIVED" : "DELIVERED",
+    }));
+
+    // Try refresh from server after a short delay (backend might auto-update)
+    setTimeout(() => {
+      fetchOrderDetail();
+    }, 1500);
+
+    // also notify parent UI if needed
+    // (OrderRouteMap may also call this prop)
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
       <div className="max-w-4xl mx-auto bg-white shadow-2xl md:rounded-xl overflow-hidden">
@@ -142,9 +174,7 @@ const OrderDetail = () => {
           <h1 className="text-2xl font-bold text-gray-900">
             Đơn hàng #{order.id || "----"}
           </h1>
-          <p className="text-md text-gray-500 mt-1">
-            {order.merchantName}
-          </p>
+          <p className="text-md text-gray-500 mt-1">{order.merchantName}</p>
         </div>
 
         <div className="p-8 space-y-6">
@@ -163,10 +193,12 @@ const OrderDetail = () => {
                 restaurant={order.restaurant}
                 deliveryLat={order.deliveryLat}
                 deliveryLng={order.deliveryLng}
+                orderId={order.id}
                 status={status}
-                onDroneArrived={() => setDroneArrived(true)}
+                onDroneArrived={handleDroneArrived}
               />
 
+              {/* Informational messages */}
               {isDelivering && !droneArrived && (
                 <p className="text-sm text-blue-600 font-medium mt-2">
                   Drone đang bay tới bạn, vui lòng chờ trong giây lát...
@@ -179,6 +211,19 @@ const OrderDetail = () => {
                   hàng".
                 </p>
               ) : null}
+
+              {/* if status is DELIVERED show a small badge */}
+              {(status === "DELIVERED" || (droneArrived && status !== "RECEIVED")) && (
+                <div className="inline-block mt-2 px-2 py-1 bg-yellow-100 text-yellow-800 text-sm rounded">
+                  DELIVERED
+                </div>
+              )}
+
+              {status === "RECEIVED" && (
+                <div className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-sm rounded">
+                  RECEIVED
+                </div>
+              )}
             </div>
           </section>
 
@@ -218,21 +263,18 @@ const OrderDetail = () => {
               <div>Phí đơn hàng: {formatCurrency(order.subtotal)}</div>
               <div>Phí giao hàng: {formatCurrency(15000)}</div>
               <div className="font-bold text-lg mt-2">
-                Tổng tiền: {formatCurrency(order.finalTotal + 15000)}
+                Tổng tiền: {formatCurrency((order.finalTotal || 0) + 15000)}
               </div>
               <div className="mt-2">
                 <span className="font-semibold">Trạng thái đơn hàng: </span>
-                <span className="uppercase">
-                  {getStatusText(status)}
-                </span>
+                <span className="uppercase">{getStatusText(status)}</span>
               </div>
             </div>
           </section>
 
           {/* Nút xác nhận đã nhận hàng:
-              - Chỉ hiển thị khi đơn ở trạng thái DELIVERED (drone đã tới)
-          */}
-          {isAwaitingCustomerConfirm && (
+              - Hiển thị khi server báo DELIVERED OR when droneArrived true while status still DELIVERING */}
+          {shouldShowConfirmButton && (
             <button
               disabled={updatingDelivered}
               onClick={handleConfirmDelivered}

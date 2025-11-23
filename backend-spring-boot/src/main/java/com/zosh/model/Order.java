@@ -62,5 +62,4 @@ public class Order {
 
 	@ManyToOne
 	private Drone drone;
-
 }

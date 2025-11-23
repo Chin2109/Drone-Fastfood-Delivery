@@ -25,6 +25,12 @@ public class DispatchServiceImpl implements DispatchService {
     private OrderRepository orderRepository;
     @Autowired
     private DroneRepository droneRepository;
+    @Autowired
+    private OrderRepository orderRepo;
+    @Autowired
+    private DroneRepository droneRepo;
+    @Autowired
+    private DroneSimulatorService simulator;
 
     public List<OrderListItemDto> getOrders(String status, String keyword) {
         List<Order> orders;
@@ -98,23 +104,22 @@ public class DispatchServiceImpl implements DispatchService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order không tồn tại"));
 
-        // chỉ cho phép khi nhà hàng đã chuẩn bị xong món
         if (!Objects.equals(order.getOrderStatus(), OrderStatus.FINISHED.name())) {
-            throw new RuntimeException("Chỉ được bắt đầu bay khi đơn ở trạng thái FINISHED (nhà hàng đã chuẩn bị xong món)");
+            throw new RuntimeException("Chỉ được bắt đầu bay khi đơn ở trạng thái FINISHED");
         }
 
-        // tìm drone đang gán cho đơn này
         Drone drone = droneRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new RuntimeException("Đơn này chưa gán drone"));
 
-        // cập nhật trạng thái
-        order.setOrderStatus(OrderStatus.DELIVERING.name());          // đơn chuyển sang đang giao
-        drone.setStatus(DroneStatus.FLYING_TO_PICKUP);         // drone bay từ hub đến nhà hàng
-
+        order.setOrderStatus(OrderStatus.DELIVERING.name());
+        drone.setStatus(DroneStatus.FLYING_TO_PICKUP);
         droneRepository.save(drone);
         orderRepository.save(order);
 
-        return OrderMapper.toDetailDto(order); // dto chi tiết đơn mà FE đang dùng
+        // Start server-side simulation for ~120 seconds
+        simulator.startSimulation(orderId, 120);
+
+        return OrderMapper.toDetailDto(order);
     }
 
 }
