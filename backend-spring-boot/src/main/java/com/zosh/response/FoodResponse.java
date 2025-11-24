@@ -11,7 +11,7 @@ public class FoodResponse {
     private Long basePrice;
     private String description;
     private String image;
-    private boolean isActive;
+    private boolean available;
 
     private List<ProductToppingGroupResponse> productToppingGroups;
     private CategoryResponse category;

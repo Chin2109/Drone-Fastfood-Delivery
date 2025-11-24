@@ -31,7 +31,7 @@ public class Food {
 
     private boolean available;
 
-    @OneToMany(mappedBy="food", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy="food", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<IngredientCategory> ingredientCategories =new ArrayList<>();
 
     @Temporal(TemporalType.TIMESTAMP)

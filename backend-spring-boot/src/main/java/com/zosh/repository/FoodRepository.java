@@ -39,5 +39,10 @@ public interface FoodRepository extends JpaRepository<Food, Long> {
     })
     Optional<Food> findByIdAndAvailableTrue(Long id);
 
+    @Query("select count(f) from Food f where f.foodCategory.id = :categoryId")
+    long countByFoodCategoryId(@Param("categoryId") Long categoryId);
+
+    boolean existsByIdAndFoodCategoryRestaurantId(Long foodId, Long restaurantId);
+
 
 }

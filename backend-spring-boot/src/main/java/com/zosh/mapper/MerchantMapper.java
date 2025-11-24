@@ -1,11 +1,13 @@
 package com.zosh.mapper;
 
 
+import com.zosh.domain.RestaurantRegisterImage;
 import com.zosh.model.Address;
 import com.zosh.model.Restaurant;
 import com.zosh.response.MerchantOverviewResponse;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 public class MerchantMapper {
 
@@ -75,6 +77,23 @@ public class MerchantMapper {
         dto.setOwnerCity(r.getOwnerCity());
         dto.setOwnerCurrentAddress(r.getOwnerCurrentAddress());
 
+        //hình
+        dto.setIdentity(null);
+        dto.setBusiness(null);
+        dto.setKitchen(null);
+        dto.setOthers(null);
+
         return dto;
+    }
+
+    public static void applyImages(MerchantOverviewResponse dto,
+                                   Map<RestaurantRegisterImage, String> map) {
+
+        if (dto == null || map == null) return;
+
+        dto.setIdentity(map.get(RestaurantRegisterImage.IDENTITY));
+        dto.setBusiness(map.get(RestaurantRegisterImage.BUSINESS));
+        dto.setKitchen(map.get(RestaurantRegisterImage.FOOD)); // FOOD = kitchen
+        dto.setOthers(map.get(RestaurantRegisterImage.OTHERS));
     }
 }

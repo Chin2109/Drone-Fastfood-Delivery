@@ -17,7 +17,7 @@ public class FoodMapper {
         dto.setBasePrice(f.getPrice());
         dto.setDescription(f.getDescription());
         dto.setImage(f.getImage());
-        dto.setActive(f.isAvailable());
+        dto.setAvailable(f.isAvailable());
 
         // Category
         CategoryResponse cateDto = new CategoryResponse();

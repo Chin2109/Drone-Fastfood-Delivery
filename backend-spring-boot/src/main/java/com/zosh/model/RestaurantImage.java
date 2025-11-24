@@ -18,6 +18,8 @@ public class RestaurantImage {
     private Long id;
 
     private String url;
+
+    @Enumerated(EnumType.ORDINAL)
     private RestaurantRegisterImage type;
 
     @JsonIgnore

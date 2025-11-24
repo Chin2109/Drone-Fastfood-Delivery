@@ -40,4 +40,10 @@ public class MerchantOverviewResponse {
     private String ownerCountry;
     private String ownerCity;
     private String ownerCurrentAddress;
+
+    //hình
+    private String identity;
+    private String business;
+    private String kitchen;
+    private String others;
 }

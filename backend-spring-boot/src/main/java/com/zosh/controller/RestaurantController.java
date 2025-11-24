@@ -3,6 +3,7 @@ package com.zosh.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.zosh.domain.RestaurantRegisterImage;
 import com.zosh.mapper.MerchantMapper;
 import com.zosh.repository.RestaurantRepository;
 import com.zosh.repository.UserRepository;
@@ -11,6 +12,7 @@ import com.zosh.request.RestaurantRegisterDTO;
 import com.zosh.response.MenuItemResponse;
 import com.zosh.response.MerchantOverviewResponse;
 import com.zosh.response.RestaurantDetailResponse;
+import com.zosh.service.RestaurantImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +43,9 @@ public class RestaurantController {
 	@Autowired
 	private RestaurantRepository restaurantRepository;
 
+	@Autowired
+	private RestaurantImageService restaurantImageService;
+
 	@PostMapping
 	public ResponseEntity<?> createMerchant(
 			@RequestPart("form") RestaurantRegisterDTO form, // text fields
@@ -59,18 +64,31 @@ public class RestaurantController {
 	}
 
 	@GetMapping("/me")
-	public ResponseEntity<MerchantOverviewResponse> getMyRestaurant(Authentication authentication) {
+	public ResponseEntity<MerchantOverviewResponse> getMyRestaurant(
+			Authentication authentication
+	) {
 		String email = authentication.getName();
 
 		User owner = userRepository.findByEmail(email)
-				.orElseThrow(() -> new RuntimeException("Không tìm thấy user với email " + email));
+				.orElseThrow(() ->
+						new RuntimeException("Không tìm thấy user với email " + email));
 
 		Restaurant restaurant = restaurantRepository.findByOwner(owner)
-				.orElseThrow(() -> new RuntimeException("User này chưa có nhà hàng nào"));
+				.orElseThrow(() ->
+						new RuntimeException("User này chưa có nhà hàng nào"));
 
+		// map thông tin cơ bản
 		MerchantOverviewResponse dto = MerchantMapper.toOverview(restaurant);
-		return new ResponseEntity<>(dto, HttpStatus.OK);
+
+		// bổ sung hình ảnh
+		Map<RestaurantRegisterImage, String> imageMap =
+				restaurantImageService.get4Images(restaurant);
+
+		MerchantMapper.applyImages(dto, imageMap);
+
+		return ResponseEntity.ok(dto);
 	}
+
 
 	@GetMapping("/{id:\\d+}")
 	public ResponseEntity<?> getRestaurantById(@PathVariable Long id) {

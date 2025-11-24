@@ -1,23 +1,50 @@
 import { Typography } from "@mui/material";
-import { MapPin } from "lucide-react";
-import { useEffect } from "react";
+import { MapPin, X, Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllMenuItems } from "../../../State/Customers/Menu/menu.action";
 import MenuItemCard from "../../components/MenuItem/MenuItemCard";
 
 const HomePage = () => {
   const dispatch = useDispatch();
-  const { menuItems, loading, error } = useSelector((state) => state.menu);
+  const { menuItems = [], loading, error } = useSelector((state) => state.menu);
+
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
   useEffect(() => {
+    // Lấy danh sách ban đầu
     dispatch(getAllMenuItems({ page: 1, limit: 50 }));
+  }, [dispatch]);
+
+  // Debounce để cập nhật hiển thị thông tin tìm kiếm tự động khi gõ,
+  // nhưng nút "Tìm" sẽ kích hoạt tìm ngay lập tức bằng doSearch().
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery((q) => (q ? q : "")), 300);
+    return () => clearTimeout(t);
   }, []);
+
+  // Hàm thực hiện tìm ngay (khi bấm nút hoặc Enter)
+  const doSearch = (q = query) => {
+    setDebouncedQuery(q.trim());
+    // Nếu muốn server-side search thay vì client-side, dispatch action ở đây:
+    // dispatch(getAllMenuItems({ page:1, limit:50, q: q.trim() }));
+  };
+
+  // Lọc client-side theo tên món (case-insensitive)
+  const filteredItems = useMemo(() => {
+    if (!debouncedQuery) return menuItems;
+    const q = debouncedQuery.toLowerCase();
+    return menuItems.filter((it) => {
+      const name = (it.name || it.title || "").toString().toLowerCase();
+      return name.includes(q);
+    });
+  }, [menuItems, debouncedQuery]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-100 font-sans">
-      {/* 1. Header & Hero Section */}
+      {/* Header & Hero Section */}
       <header className="relative h-[520px] md:h-[600px] lg:h-[650px] w-full overflow-hidden">
-        {/* Background Image */}
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -26,11 +53,8 @@ const HomePage = () => {
             filter: "brightness(72%)",
           }}
         />
-        {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40" />
 
-
-        {/* Hero Content Card */}
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="w-[92%] sm:w-[85%] md:w-[600px] lg:w-[720px] mt-4">
             <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.35)] p-6 md:p-10 border border-white/70">
@@ -40,36 +64,53 @@ const HomePage = () => {
               </p>
 
               <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-                Xin chào 
+                Xin chào
               </h1>
               <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 md:mb-6 leading-snug">
-                Hôm nay bạn muốn drone giao đồ ăn đến đâu?
+                Hôm nay bạn muốn drone giao món gì?
               </h2>
 
               <p className="text-sm md:text-base text-gray-600 mb-5 md:mb-7">
-                Nhập địa chỉ của bạn để xem những quán ăn đang có ưu đãi giao
-                nhanh gần khu vực.
+                Nhập tên món vào ô bên dưới rồi nhấn "Tìm nhà hàng gần bạn".
               </p>
 
-              {/* Location Input Group */}
-              <div className="relative flex flex-col sm:flex-row bg-gray-50 border-2 border-gray-200 rounded-xl overflow-hidden focus-within:border-emerald-500 shadow-sm transition-all duration-300">
+              {/* Gộp thành 1 input: dùng để tìm món (không phải địa chỉ nữa) */}
+              <div className="relative flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
                   <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-emerald-500 w-5 h-5" />
                   <input
-                    type="text"
-                    placeholder="Nhập địa chỉ giao hàng của bạn..."
-                    className="w-full pl-11 pr-4 py-3.5 md:py-4 text-gray-800 bg-transparent focus:outline-none text-sm md:text-base"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") doSearch();
+                    }}
+                    placeholder="Tìm món ăn theo tên — ví dụ: phở, cơm, burger..."
+                    className="w-full pl-11 pr-10 py-3.5 md:py-4 text-black bg-transparent focus:outline-none text-sm md:text-base border-2 border-gray-200 rounded-xl shadow-sm"
+                    // CHÚ Ý: đảm bảo chữ màu đen bằng "text-black"
                   />
+                  {query && (
+                    <button
+                      onClick={() => setQuery("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100"
+                      aria-label="clear"
+                    >
+                      <X className="w-4 h-4 text-gray-600" />
+                    </button>
+                  )}
                 </div>
-                <button className="w-full sm:w-auto bg-emerald-500 text-white font-semibold px-5 md:px-7 py-3.5 md:py-4 text-sm md:text-base hover:bg-emerald-600 active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2">
+
+                <button
+                  onClick={() => doSearch()}
+                  className="w-full sm:w-auto bg-emerald-500 text-white font-semibold px-5 md:px-7 py-3.5 md:py-4 text-sm md:text-base hover:bg-emerald-600 active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <Search className="w-4 h-4" />
                   <span>Tìm nhà hàng gần bạn</span>
                 </button>
               </div>
 
-              {/* Small hint */}
               <p className="mt-3 text-[12px] text-gray-500">
-                Gợi ý: Dùng định vị hiện tại để tìm quán gần nhất và ưu đãi phù
-                hợp hơn.
+                Gợi ý: gõ tên món rồi nhấn nút hoặc Enter. Muốn tìm chính xác hơn,
+                thêm từ khóa (ví dụ: "bún bò", "pizza").
               </p>
             </div>
           </div>
@@ -112,18 +153,40 @@ const HomePage = () => {
           </div>
         </div>
 
+        {/* Search status / results info */}
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="text-sm text-gray-600">
+            {debouncedQuery ? (
+              <span>
+                Kết quả cho "<span className="font-medium">{debouncedQuery}</span>":{" "}
+                <span className="font-semibold text-gray-900">{filteredItems.length}</span>
+              </span>
+            ) : (
+              <span>
+                Hiển thị <span className="font-semibold text-gray-900">{menuItems.length}</span> món
+              </span>
+            )}
+          </div>
+          {loading && <div className="text-sm text-gray-500">Đang tải...</div>}
+        </div>
+
         {/* List menu items */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
-          {menuItems.map((item, index) => (
-            <MenuItemCard key={index} data={item} />
-          ))}
+          {filteredItems.length > 0 ? (
+            filteredItems.map((item, index) => (
+              <MenuItemCard key={item.id ?? index} data={item} />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-10 text-gray-500">
+              {loading ? "Đang tải..." : "Không tìm thấy món nào khớp."}
+            </div>
+          )}
         </div>
       </section>
 
       {/* Footer */}
       <footer className="bg-emerald-700 text-white pt-10 pb-12 md:pt-12 md:pb-16 mt-4">
         <div className="container mx-auto px-4 lg:px-6">
-          {/* Logo */}
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
               Drone<span className="text-yellow-300">FastFood</span>
@@ -134,7 +197,6 @@ const HomePage = () => {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 border-t border-emerald-500/50 pt-8">
-            {/* Cột 1: Về chúng tôi */}
             <div>
               <h4 className="font-semibold mb-4 text-sm md:text-base">
                 Về DroneFastFood
@@ -158,11 +220,8 @@ const HomePage = () => {
               </ul>
             </div>
 
-            {/* Cột 2: Liên hệ & Hỗ trợ */}
             <div>
-              <h4 className="font-semibold mb-4 text-sm md:text-base">
-                Liên hệ
-              </h4>
+              <h4 className="font-semibold mb-4 text-sm md:text-base">Liên hệ</h4>
               <ul className="space-y-2 text-xs md:text-sm text-emerald-100/90">
                 <li>
                   <a href="#" className="hover:text-white transition-colors">
@@ -182,7 +241,6 @@ const HomePage = () => {
               </ul>
             </div>
 
-            {/* Cột 3: Chính sách */}
             <div>
               <h4 className="font-semibold mb-4 text-sm md:text-base">
                 Điều khoản & Chính sách
@@ -201,11 +259,8 @@ const HomePage = () => {
               </ul>
             </div>
 
-            {/* Cột 4: App (placeholder) */}
             <div className="col-span-2 md:col-span-1">
-              <h4 className="font-semibold mb-4 text-sm md:text-base">
-                Tải ứng dụng
-              </h4>
+              <h4 className="font-semibold mb-4 text-sm md:text-base">Tải ứng dụng</h4>
               <div className="flex flex-wrap gap-3">
                 <div className="h-10 md:h-11 w-32 rounded-lg bg-black/80 flex items-center justify-center text-[11px] md:text-xs font-medium">
                   App Store
@@ -217,7 +272,6 @@ const HomePage = () => {
             </div>
           </div>
 
-          {/* Bottom note */}
           <div className="mt-8 text-[11px] md:text-xs text-emerald-100/80 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
             <span>© {new Date().getFullYear()} DroneFastFood. All rights reserved.</span>
             <span>Made with ❤️ somewhere above the city.</span>
