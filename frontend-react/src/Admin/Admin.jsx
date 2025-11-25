@@ -2,6 +2,7 @@ import { NavLink, Routes, Route } from "react-router-dom";
 import AdminUsersPage from "../Admin/component/AdminUsersPage";
 import AdminDispatchPage from "./component/AdminDispatchPage";
 import AdminDronesPage from "./component/AdminDronesPage";
+import AdminRestaurantsPage from "./component/AdminRestaurantPage";
 
 const ManagementSection = ({
   title,
@@ -163,23 +164,7 @@ const AdminLayout = () => {
           <Route path="users" element={<AdminUsersPage />} />
 
           {/* Nhà hàng */}
-          <Route
-            path="restaurants"
-            element={
-              <ManagementSection
-                title="Quản lý nhà hàng"
-                description="Duyệt, khóa/mở và quản lý thông tin nhà hàng."
-                searchPlaceholder="Tìm theo tên nhà hàng, email, mã nhà hàng..."
-                statusOptions={[
-                  { value: "all", label: "Tất cả trạng thái" },
-                  { value: "pending", label: "Chờ duyệt" },
-                  { value: "active", label: "Đang hoạt động" },
-                  { value: "suspended", label: "Bị tạm ngưng" },
-                ]}
-                emptyText="Danh sách nhà hàng sẽ hiển thị ở đây."
-              />
-            }
-          />
+          <Route path="restaurants" element={<AdminRestaurantsPage />} />
 
           {/* Điều phối đơn hàng */}
           <Route path="dispatch" element={<AdminDispatchPage />} />

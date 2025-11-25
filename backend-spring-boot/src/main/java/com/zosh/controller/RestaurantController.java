@@ -1,7 +1,9 @@
 package com.zosh.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.zosh.domain.RestaurantRegisterImage;
 import com.zosh.mapper.MerchantMapper;
@@ -103,6 +105,41 @@ public class RestaurantController {
 				)
 		);
 	}
+
+
+	@GetMapping("/list")
+	public ResponseEntity<?> listAllRestaurants() {
+		try {
+			List<Restaurant> list = restaurantRepository.findAll();
+
+			// map sang summary
+			List<Map<String, Object>> payload = list.stream().map(r -> {
+				Map<String, Object> map = new HashMap<>();
+				map.put("id", r.getId());
+				map.put("name", r.getName());
+				map.put("ownerEmail", r.getOwner() != null ? r.getOwner().getEmail() : null);
+				map.put("status", r.getStatus());
+				return map;
+			}).collect(Collectors.toList());
+
+			return ResponseEntity.ok(
+					Map.of(
+							"success", true,
+							"message", "Fetched all restaurants",
+							"data", payload
+					)
+			);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(500).body(
+					Map.of(
+							"success", false,
+							"message", e.getMessage()
+					)
+			);
+		}
+	}
+
 
 
 }
