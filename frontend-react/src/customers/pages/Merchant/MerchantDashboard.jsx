@@ -14,23 +14,53 @@ const MerchantDashboard = () => {
   useEffect(() => {
     console.log("MerchantDashboard mounted, jwt =", jwt);
 
-    const fetchOverview = async () => {
-      try {
-        console.log(">>> GỌI API /api/merchant/me");
-        const res = await fetch(`${API_URL}/merchant/me`, {
-          headers: jwt ? { Authorization: `Bearer ${jwt}` } : {},
-        });
+  const fetchOverview = async () => {
+    try {
+      console.log(">>> GỌI API /api/merchant/me");
+      // Build URL from API_URL config (make sure API_URL includes trailing /api, e.g. https://xxx.ngrok.../api)
+      const url = `${API_URL.replace(/\/$/, "")}/merchant/me`;
+      console.log("Fetching from:", url);
 
-        console.log("Status /api/merchant/me =", res.status);
-        const data = await res.json();
-        console.log("Data merchant =", data);
-        setForm(data);
-      } catch (e) {
-        console.error("Lỗi lấy thông tin merchant:", e);
-      } finally {
-        setLoading(false);
+      const res = await fetch(url, {
+        headers: jwt ? { Authorization: `Bearer ${jwt}` } : {},
+        // credentials: "include" // uncomment if you rely on cookies
+      });
+
+      console.log("Status /api/merchant/me =", res.status, res.statusText);
+
+      // If unauthorized, handle explicitly
+      if (res.status === 401) {
+        console.warn("Unauthorized (401) when fetching merchant/me");
+        // optional: redirect to login or clear jwt
+        // navigate('/login'); // if using react-router
+        throw new Error("Unauthorized");
       }
-    };
+
+      // Check Content-Type before parsing JSON to avoid "Unexpected token '<'" errors
+      const contentType = (res.headers.get("content-type") || "").toLowerCase();
+      if (!contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Expected JSON but got:", contentType);
+        console.error("Response preview:", text.slice(0, 1000));
+        throw new Error("Invalid JSON response from API");
+      }
+
+      // parse JSON
+      const data = await res.json();
+      console.log("Data merchant =", data);
+
+      // Some backends wrap payload in data/data.payload -> be flexible
+      const payload = data?.data ?? data;
+      setForm(payload);
+    } catch (e) {
+      console.error("Lỗi lấy thông tin merchant:", e);
+      // show user-friendly message if needed
+      // toast.error("Không lấy được thông tin merchant.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
     fetchOverview();
   }, [jwt]);
