@@ -64,17 +64,25 @@ export const getAllRestaurantsAction = (token) => {
 };
 
 export const getRestaurantById = (id) => {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     dispatch(getRestaurantByIdRequest());
+
+    const token = getState().auth.jwt; // lấy token từ redux
+
     try {
-      const response = await api.get(`/merchant/${id}`);
-      console.log(response.data.data);
+      const response = await api.get(`/merchant/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       dispatch(getRestaurantByIdSuccess(response.data.data));
     } catch (error) {
       dispatch(getRestaurantByIdFailure(error));
     }
   };
 };
+
 
 export const getRestaurantByUserId = (jwt) => {
   return async (dispatch) => {

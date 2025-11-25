@@ -2,7 +2,9 @@ package com.zosh.controller;
 
 import com.zosh.model.Category;
 import com.zosh.model.Food;
+import com.zosh.model.Restaurant;
 import com.zosh.model.User;
+import com.zosh.repository.RestaurantRepository;
 import com.zosh.repository.UserRepository;
 import com.zosh.request.AddCategoryRequest;
 import com.zosh.request.AddFoodRequest;
@@ -35,6 +37,9 @@ public class FoodController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
     // CATEGORY
     @GetMapping("/categories")
@@ -175,9 +180,12 @@ public class FoodController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User không tồn tại"));
         Long merchantId = user.getId();
+        System.out.println("➡️ [GET /get-all] email = " + email + ", merchantId = " + merchantId);
+
+        Restaurant restaurant = restaurantRepository.findByOwner(user).orElseThrow();
 
 
-        Page<?> foods = foodService.getAllFood(merchantId, categoryId, name, page, limit, available);
+        Page<?> foods = foodService.getAllFood(restaurant.getId(), categoryId, name, page, limit, available);
 
         // Nếu service chưa hỗ trợ filter available trong query, bạn có thể lọc ở service
         // Tại đây giữ consistent: trả về content của page
