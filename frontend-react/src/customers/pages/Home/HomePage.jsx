@@ -14,7 +14,7 @@ const HomePage = () => {
 
   useEffect(() => {
     // Lấy danh sách ban đầu
-    dispatch(getAllMenuItems({ page: 1, limit: 50 }));
+    dispatch(getAllMenuItems({ page: 1, limit: 50, available: true }));
   }, [dispatch]);
 
   // Debounce để cập nhật hiển thị thông tin tìm kiếm tự động khi gõ,
