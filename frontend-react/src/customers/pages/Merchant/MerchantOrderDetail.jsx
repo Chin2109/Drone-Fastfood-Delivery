@@ -80,7 +80,7 @@ const MerchantOrderDetail = () => {
   // - CONFIRMED -> "Đã chuẩn bị món"  -> FINISHED
   const getActionByStatus = (s) => {
     switch (s) {
-      case "PENDING":
+      case "ASSIGNED":
         return { label: "Xác nhận đơn hàng", nextStatus: "CONFIRMED" };
       case "CONFIRMED":
         return { label: "Đã chuẩn bị món", nextStatus: "FINISHED" };
