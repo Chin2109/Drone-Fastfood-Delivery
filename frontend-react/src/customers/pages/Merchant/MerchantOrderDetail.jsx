@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { formatCurrency } from "../../util/formartCurrency";
 import OrderRouteMap from "../../components/Address/OrderRouteMap";
+import { API_URL } from "../../../config/api";
 
 const MerchantOrderDetail = () => {
   const { orderId } = useParams();
@@ -16,7 +17,7 @@ const MerchantOrderDetail = () => {
   useEffect(() => {
     const fetchOrderDetail = async () => {
       try {
-        const res = await fetch(`http://localhost:5454/api/order/${orderId}`, {
+        const res = await fetch(`${API_URL}/api/order/${orderId}`, {
           headers: {
             Authorization: `Bearer ${jwt}`,
           },
@@ -97,7 +98,7 @@ const MerchantOrderDetail = () => {
       setUpdatingStatus(true);
 
       const res = await fetch(
-        `http://localhost:5454/api/order/${order.id}/status`,
+        `${API_URL}/api/order/${order.id}/status`,
         {
           method: "PUT",
           headers: {

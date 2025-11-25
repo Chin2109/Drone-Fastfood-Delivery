@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../../../config/api";
 
 const ORDER_STATUS = [
   "ALL",
@@ -27,7 +28,7 @@ const MerchantOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch("http://localhost:5454/api/order/myres", {
+        const res = await fetch(`${API_URL}/api/order/myres`, {
           headers: { Authorization: `Bearer ${jwt}` },
         });
 

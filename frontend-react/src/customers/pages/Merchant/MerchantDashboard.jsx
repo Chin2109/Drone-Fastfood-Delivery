@@ -1,6 +1,7 @@
 // src/pages/Merchant/MerchantDashboard.jsx
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { API_URL } from "../../../config/api";
 
 const MerchantDashboard = () => {
   const { jwt } = useSelector((s) => s.auth);
@@ -16,7 +17,7 @@ const MerchantDashboard = () => {
     const fetchOverview = async () => {
       try {
         console.log(">>> GỌI API /api/merchant/me");
-        const res = await fetch("http://localhost:5454/api/merchant/me", {
+        const res = await fetch(`${API_URL}/api/merchant/me`, {
           headers: jwt ? { Authorization: `Bearer ${jwt}` } : {},
         });
 
@@ -39,7 +40,7 @@ const MerchantDashboard = () => {
     // nếu đã là absolute url thì dùng luôn
     if (url.startsWith("http://") || url.startsWith("https://")) return url;
     // nếu backend trả relative path, prefix base host (thay đổi base nếu cần)
-    const base = "http://localhost:5454";
+    const base = API_URL;
     // trim slashes
     if (url.startsWith("/")) return `${base}${url}`;
     return `${base}/${url}`;

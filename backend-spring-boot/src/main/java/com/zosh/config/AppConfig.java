@@ -60,22 +60,22 @@ public class AppConfig {
 	
     // CORS Configuration
     private CorsConfigurationSource corsConfigurationSource() {
-        return new CorsConfigurationSource() {
-            @Override
-            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                CorsConfiguration cfg = new CorsConfiguration();
-                cfg.setAllowedOrigins(Arrays.asList(
-                    "http://localhost:3000",
-                    "https://zosh-food.vercel.app",
-                    "http://localhost:4200"
-                ));
-                cfg.setAllowedMethods(Collections.singletonList("*"));
-                cfg.setAllowCredentials(true);
-                cfg.setAllowedHeaders(Collections.singletonList("*"));
-                cfg.setExposedHeaders(Arrays.asList("Authorization"));
-                cfg.setMaxAge(3600L);
-                return cfg;
-            }
+        return request -> {
+            CorsConfiguration cfg = new CorsConfiguration();
+            cfg.setAllowedOrigins(Arrays.asList(
+                    "http://localhost:30000",
+                    "http://localhost:3000", // nếu ai dev trên 3000
+                    "http://localhost:4200",
+                    "https://drone-fastfood-delivery.vercel.app",
+                    "https://drone-fastfood-delivery-a6ldzeu4t-chins-projects-6b5b149f.vercel.app/",
+                    "https://ichthyolitic-vashti-adminicular.ngrok-free.dev" // optional, chỉ nếu bạn gọi backend trực tiếp qua ngrok
+            ));
+            cfg.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
+            cfg.setAllowCredentials(true);
+            cfg.setAllowedHeaders(Collections.singletonList("*"));
+            cfg.setExposedHeaders(Arrays.asList("Authorization"));
+            cfg.setMaxAge(3600L);
+            return cfg;
         };
     }
 

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { API_URL } from "../../config/api";
 
 export default function VnPayReturn() {
   const location = useLocation();
@@ -25,7 +26,7 @@ export default function VnPayReturn() {
           const payload = JSON.parse(raw);
           console.log("Tạo order với payload:", payload);
 
-          const res = await fetch("http://localhost:5454/api/order/create", {
+          const res = await fetch(`${API_URL}/order/create`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

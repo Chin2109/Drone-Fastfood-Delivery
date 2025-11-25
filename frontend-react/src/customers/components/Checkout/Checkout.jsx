@@ -11,6 +11,7 @@ import Cart from "../../pages/Cart/Cart";
 import { formatCurrency } from "../../util/formartCurrency";
 import AddressPicker from "../Address/AddressPicker";
 import SpecialInstruction from "../Product/SpecialInstruction";
+import { API_URL } from "../../../config/api";
 
 export default function Checkout() {
   const dispatch = useDispatch();
@@ -107,7 +108,7 @@ export default function Checkout() {
       console.log("Gọi tới backend VNPay với amount:", amount);
 
       const res = await fetch(
-        `http://localhost:5454/api/v1/payment/vn-pay?amount=${amount}&bankCode=NCB`,
+        `${API_URL}/v1/payment/vn-pay?amount=${amount}&bankCode=NCB`,
         {
           method: "GET",
         }

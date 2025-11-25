@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { formatCurrency } from "../../util/formartCurrency";
 import OrderRouteMap from "../Address/OrderRouteMap";
+import { API_URL } from "../../../config/api";
 
 const OrderDetail = () => {
   const { orderId } = useParams();
@@ -20,7 +21,7 @@ const OrderDetail = () => {
     if (!jwt || !orderId) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5454/api/order/${orderId}`, {
+      const res = await fetch(`${API_URL}/api/order/${orderId}`, {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
@@ -111,7 +112,7 @@ const OrderDetail = () => {
     try {
       setUpdatingDelivered(true);
 
-      const res = await fetch(`http://localhost:5454/api/order/${id}/status`, {
+      const res = await fetch(`${API_URL}/api/order/${id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

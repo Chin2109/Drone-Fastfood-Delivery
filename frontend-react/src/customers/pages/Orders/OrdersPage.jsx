@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../../../config/api";
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -12,7 +13,7 @@ const OrdersPage = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch("http://localhost:5454/api/order/my", {
+        const res = await fetch(`${API_URL}/api/order/my`, {
           headers: {
             Authorization: `Bearer ${jwt}`,
           },

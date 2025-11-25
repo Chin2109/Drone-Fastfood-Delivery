@@ -2,8 +2,9 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { API_URL } from "../../config/api";
 
-const API_BASE = "http://localhost:5454"; 
+const API_BASE = API_URL; 
 
 const AdminRestaurantsPage = () => {
   const auth = useSelector((state) => state.auth);
