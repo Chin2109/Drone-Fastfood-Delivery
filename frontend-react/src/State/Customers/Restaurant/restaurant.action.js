@@ -287,19 +287,29 @@ export const createCategoryAction = ({ reqData, jwt }) => {
 };
 
 export const getRestaurantsCategory = (merchantId) => {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     dispatch({ type: GET_RESTAURANTS_CATEGORY_REQUEST });
+
+    const token = getState().auth.jwt;
+
     try {
       const res = await api.get(`/category`, {
         params: { merchantId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      console.log("get restaurants category ", res.data.data);
+
       dispatch({
         type: GET_RESTAURANTS_CATEGORY_SUCCESS,
         payload: res.data.data,
       });
     } catch (error) {
-      dispatch({ type: GET_RESTAURANTS_CATEGORY_FAILURE, payload: error });
+      dispatch({
+        type: GET_RESTAURANTS_CATEGORY_FAILURE,
+        payload: error,
+      });
     }
   };
 };
+
