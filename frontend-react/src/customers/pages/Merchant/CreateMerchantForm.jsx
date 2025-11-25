@@ -74,7 +74,7 @@ const CreateMerchantForm = () => {
 
     try {
       const res = await axios.post(
-        `${API_URL}/api/merchant`, // đổi URL theo backend
+        `${API_URL}/merchant`, // đổi URL theo backend
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

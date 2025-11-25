@@ -25,7 +25,7 @@ const AdminRestaurantsPage = () => {
     setError(null);
 
     try {
-      const url = `${API_BASE}/api/merchant/list`;
+      const url = `${API_BASE}/merchant/list`;
       const res = await fetch(url, {
         headers: {
           Accept: "application/json",

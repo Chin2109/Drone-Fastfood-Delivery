@@ -21,7 +21,7 @@ const OrderDetail = () => {
     if (!jwt || !orderId) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/order/${orderId}`, {
+      const res = await fetch(`${API_URL}/order/${orderId}`, {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
@@ -112,7 +112,7 @@ const OrderDetail = () => {
     try {
       setUpdatingDelivered(true);
 
-      const res = await fetch(`${API_URL}/api/order/${id}/status`, {
+      const res = await fetch(`${API_URL}/order/${id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

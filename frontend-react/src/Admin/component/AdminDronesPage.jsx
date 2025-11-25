@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { API_URL } from "../../config/api";
 
 
-const API_BASE = API_URL + "/api/admin/drones";
+const API_BASE = API_URL + "/admin/drones";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "Tất cả trạng thái" },

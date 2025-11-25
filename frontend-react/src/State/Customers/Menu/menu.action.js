@@ -59,7 +59,7 @@ export const createMenuItem = ({ menu, jwt }) => {
   return async (dispatch) => {
     dispatch(createMenuItemRequest());
     try {
-      const { data } = await api.post("api/admin/food", menu, {
+      const { data } = await api.post("/admin/food", menu, {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
@@ -78,7 +78,7 @@ export const getMenuItemsByRestaurantId = (reqData) => {
     dispatch(getMenuItemsByRestaurantIdRequest());
     try {
       const { data } = await api.get(
-        `/api/food/restaurant/${reqData.restaurantId}?vegetarian=${reqData.vegetarian}&nonveg=${reqData.nonveg}
+        `/food/restaurant/${reqData.restaurantId}?vegetarian=${reqData.vegetarian}&nonveg=${reqData.nonveg}
         &seasonal=${reqData.seasonal}&food_category=${reqData.foodCategory}`,
         {
           headers: {
@@ -98,7 +98,7 @@ export const searchMenuItem = ({ keyword, jwt }) => {
   return async (dispatch) => {
     dispatch({ type: SEARCH_MENU_ITEM_REQUEST });
     try {
-      const { data } = await api.get(`api/food/search?name=${keyword}`, {
+      const { data } = await api.get(`/food/search?name=${keyword}`, {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
@@ -116,7 +116,7 @@ export const getAllIngredientsOfMenuItem = (reqData) => {
     dispatch(getMenuItemsByRestaurantIdRequest());
     try {
       const { data } = await api.get(
-        `api/food/restaurant/${reqData.restaurantId}`,
+        `/food/restaurant/${reqData.restaurantId}`,
         {
           headers: {
             Authorization: `Bearer ${reqData.jwt}`,
@@ -136,7 +136,7 @@ export const updateMenuItemsAvailability = ({ foodId, jwt }) => {
     dispatch({ type: UPDATE_MENU_ITEMS_AVAILABILITY_REQUEST });
     try {
       const { data } = await api.put(
-        `/api/admin/food/${foodId}`,
+        `/admin/food/${foodId}`,
         {},
         {
           headers: {
@@ -161,7 +161,7 @@ export const deleteFoodAction =
   async (dispatch) => {
     dispatch({ type: DELETE_MENU_ITEM_REQUEST });
     try {
-      const { data } = await api.delete(`/api/admin/food/${foodId}`, {
+      const { data } = await api.delete(`/admin/food/${foodId}`, {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },

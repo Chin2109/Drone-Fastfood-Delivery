@@ -64,7 +64,7 @@ export const getUsersOrders = (jwt) => {
   return async (dispatch) => {
     dispatch(getUsersOrdersRequest());
     try {
-      const { data } = await api.get(`/api/order/user`, {
+      const { data } = await api.get(`/order/user`, {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
@@ -82,7 +82,7 @@ export const getUsersNotificationAction = () => {
   return async (dispatch) => {
     dispatch(createOrderRequest());
     try {
-      const { data } = await api.get("/api/notifications");
+      const { data } = await api.get("/notifications");
 
       console.log("all notifications ", data);
       dispatch({ type: GET_USERS_NOTIFICATION_SUCCESS, payload: data });

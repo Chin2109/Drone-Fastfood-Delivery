@@ -28,7 +28,7 @@ const MerchantOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/order/myres`, {
+        const res = await fetch(`${API_URL}/order/myres`, {
           headers: { Authorization: `Bearer ${jwt}` },
         });
 

@@ -13,7 +13,7 @@ const OrdersPage = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/order/my`, {
+        const res = await fetch(`${API_URL}/order/my`, {
           headers: {
             Authorization: `Bearer ${jwt}`,
           },

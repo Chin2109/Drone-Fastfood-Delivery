@@ -16,7 +16,7 @@ export const updateOrderStatus = ({orderId,orderStatus,jwt}) => {
       dispatch({ type: UPDATE_ORDER_STATUS_REQUEST });
 
       const response = await api.put(
-        `/api/admin/orders/${orderId}/${orderStatus}`,{},{
+        `/admin/orders/${orderId}/${orderStatus}`,{},{
           headers: {
             Authorization: `Bearer ${jwt}`,
           },
@@ -44,7 +44,7 @@ export const fetchRestaurantsOrder = ({restaurantId,orderStatus,jwt}) => {
       dispatch({ type: GET_RESTAURANTS_ORDER_REQUEST });
 
       const { data } = await api.get(
-        `/api/admin/order/restaurant/${restaurantId}`,{
+        `/admin/order/restaurant/${restaurantId}`,{
           params: { order_status:orderStatus},
           headers: {
             Authorization: `Bearer ${jwt}`,

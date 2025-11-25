@@ -27,7 +27,7 @@ export const findCart = (token) => {
   return async (dispatch) => {
     dispatch(findCartRequest());
     try {
-      const response = await api.get(`/api/cart/`, {
+      const response = await api.get(`/cart/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -127,7 +127,7 @@ export const clearCartAction = () => {
     dispatch({ type: CLEARE_CART_REQUEST });
     try {
       const { data } = await api.put(
-        `/api/cart/clear`,
+        `/cart/clear`,
         {},
         {
           headers: {

@@ -5,7 +5,7 @@ export const getCustomers = () => {
     return async (dispatch) => {
       dispatch({type:GET_CUSTOMERS_REQUEST});
       try {
-        const { data } = await api.get("api/customers");
+        const { data } = await api.get("/customers");
         dispatch({type:GET_CUSTOMERS_SUCCESS,payload:data});
         console.log("created restaurant ", data);
       } catch (error) {
@@ -18,7 +18,7 @@ export const getPendingCustomers = () => {
     return async (dispatch) => {
       dispatch({type:GET_PENDING_CUSTOMERS_REQUEST});
       try {
-        const { data } = await api.get("api/customers");
+        const { data } = await api.get("/customers");
         dispatch({type:GET_PENDING_CUSTOMERS_SUCCESS,payload:data});
         console.log("created restaurant ", data);
       } catch (error) {

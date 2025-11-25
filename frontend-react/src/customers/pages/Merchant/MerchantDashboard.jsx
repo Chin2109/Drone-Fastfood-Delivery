@@ -17,7 +17,7 @@ const MerchantDashboard = () => {
     const fetchOverview = async () => {
       try {
         console.log(">>> GỌI API /api/merchant/me");
-        const res = await fetch(`${API_URL}/api/merchant/me`, {
+        const res = await fetch(`${API_URL}/merchant/me`, {
           headers: jwt ? { Authorization: `Bearer ${jwt}` } : {},
         });
 

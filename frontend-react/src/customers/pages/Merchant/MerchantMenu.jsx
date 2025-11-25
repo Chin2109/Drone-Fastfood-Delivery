@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { API_URL } from "../../../config/api";
 
-const API_BASE = `${API_URL}/api/product`;
+const API_BASE = `${API_URL}/product`;
 
 const emptyFoodForm = (categories = []) => ({
   name: "",

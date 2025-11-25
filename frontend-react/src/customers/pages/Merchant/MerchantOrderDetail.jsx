@@ -17,7 +17,7 @@ const MerchantOrderDetail = () => {
   useEffect(() => {
     const fetchOrderDetail = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/order/${orderId}`, {
+        const res = await fetch(`${API_URL}/order/${orderId}`, {
           headers: {
             Authorization: `Bearer ${jwt}`,
           },
@@ -98,7 +98,7 @@ const MerchantOrderDetail = () => {
       setUpdatingStatus(true);
 
       const res = await fetch(
-        `${API_URL}/api/order/${order.id}/status`,
+        `${API_URL}/order/${order.id}/status`,
         {
           method: "PUT",
           headers: {

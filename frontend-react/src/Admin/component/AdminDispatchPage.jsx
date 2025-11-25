@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
+import { API_URL } from "../../config/api";
 
-const API_BASE = "/api/admin/dispatch";
+const API_BASE = `${API_URL}/admin/dispatch`;
 
 const STATUS_OPTIONS = [
   { value: "PENDING", label: "Chờ điều phối" },
