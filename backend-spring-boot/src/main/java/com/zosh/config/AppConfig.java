@@ -1,14 +1,17 @@
 package com.zosh.config;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Collections;
 
 import com.bedatadriven.jackson.datatype.jts.JtsModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,10 +26,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
 public class AppConfig {
+    private static final Logger logger = LoggerFactory.getLogger(AppConfig.class);
     private final ObjectMapper objectMapper;
 
     public AppConfig(ObjectMapper objectMapper) {
@@ -55,57 +60,83 @@ public class AppConfig {
                 )
                 .addFilterBefore(new JwtTokenValidator(), BasicAuthenticationFilter.class)
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authEx) -> {
+                            logger.warn("Unauthenticated request to {}: {}", request.getRequestURI(), authEx.getMessage());
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"error\":\"unauthenticated\",\"message\":\"" + authEx.getMessage() + "\"}");
+                        })
+                        .accessDeniedHandler((request, response, accessEx) -> {
+                            logger.warn("Access denied to {}: {}", request.getRequestURI(), accessEx.getMessage());
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"error\":\"forbidden\",\"message\":\"" + accessEx.getMessage() + "\"}");
+                        })
+                );
 
-		return http.build();
-	}
-	
+        return http.build();
+    }
+
     // CORS Configuration
     private CorsConfigurationSource corsConfigurationSource() {
-        // whitelist các origin bạn dùng
+        // whitelist các origin bạn dùng — dùng patterns để cover vercel preview + trycloudflare
         List<String> whitelist = Arrays.asList(
                 "http://localhost:30000",
                 "http://localhost:3000",
                 "http://localhost:4200",
                 "https://drone-fastfood-delivery.vercel.app",
                 "https://drone-fastfood-delivery-a6ldzeu4t-chins-projects-6b5b149f.vercel.app",
-                "https://ichthyolitic-vashti-adminicular.ngrok-free.dev"
+                "https://ichthyolitic-vashti-adminicular.ngrok-free.dev",
+                "https://*.trycloudflare.com" // allow cloudflared quick tunnels
         );
 
         return request -> {
             CorsConfiguration cfg = new CorsConfiguration();
-            String origin = request.getHeader("Origin");
 
-            if (origin != null && whitelist.contains(origin)) {
-                cfg.setAllowedOrigins(Collections.singletonList(origin)); // trả đúng origin
-            } else {
-                cfg.setAllowedOrigins(Collections.emptyList()); // hoặc không allow
-            }
+            // Prefer allowedOriginPatterns for flexibility with wildcards
+            cfg.setAllowedOriginPatterns(Arrays.asList(
+                    "http://localhost:*",
+                    "https://*.vercel.app",
+                    "https://*.trycloudflare.com",
+                    "https://*.ngrok-free.dev"
+            ));
 
             cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             cfg.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
             cfg.setExposedHeaders(Arrays.asList("Authorization"));
             cfg.setAllowCredentials(true);
             cfg.setMaxAge(3600L);
+
+            // Optional: if you still want to only allow exact origins from whitelist,
+            // uncomment below: (keeps echo behavior)
+            /*
+            String origin = request.getHeader("Origin");
+            if (origin != null && whitelist.contains(origin)) {
+                cfg.setAllowedOrigins(Collections.singletonList(origin));
+            } else {
+                cfg.setAllowedOrigins(Collections.emptyList());
+            }
+            */
+
             return cfg;
         };
     }
 
-
     @Bean
     PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+        return new BCryptPasswordEncoder();
+    }
 
     @PostConstruct
     public void registerJtsModule() {
-        // Đăng ký JtsModule - Giúp map đối tượng Point của jts thành kiểu dữ liệu customize đơn giản
+        // Đăng ký JtsModule
         objectMapper.registerModule(new JtsModule());
     }
 
     @Bean
     public GeometryFactory geometryFactory() {
-        // Tham số: PrecisionModel (độ chính xác), SRID (hệ tham chiếu không gian)
         return new GeometryFactory(new PrecisionModel(), 4326);
     }
 
