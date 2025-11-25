@@ -103,7 +103,7 @@ public class AppConfig {
                     "https://*.ngrok-free.dev"
             ));
 
-            cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
             cfg.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
             cfg.setExposedHeaders(Arrays.asList("Authorization"));
             cfg.setAllowCredentials(true);

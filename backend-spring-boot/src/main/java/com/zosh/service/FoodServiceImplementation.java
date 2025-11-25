@@ -388,10 +388,10 @@ public class FoodServiceImplementation implements FoodService {
         User user = userRepository.findById(userId).orElseThrow();
         Restaurant r = restaurantRepository.findByOwner(user).orElseThrow();
 
-        Category cat = f.getFoodCategory();
-        if (cat == null || cat.getRestaurant() == null || !cat.getRestaurant().getId().equals(r.getId())) {
-            throw new RuntimeException("Không có quyền cập nhật món này");
-        }
+//        Category cat = f.getFoodCategory();
+//        if (cat == null || cat.getRestaurant() == null || !cat.getRestaurant().getId().equals(r.getId())) {
+//            throw new RuntimeException("Không có quyền cập nhật món này");
+//        }
 
         if (available != null) {
             f.setAvailable(available);
