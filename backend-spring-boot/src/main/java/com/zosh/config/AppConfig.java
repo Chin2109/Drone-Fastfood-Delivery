@@ -2,6 +2,7 @@ package com.zosh.config;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import com.bedatadriven.jackson.datatype.jts.JtsModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,11 +38,12 @@ public class AppConfig {
 
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(Authorize -> Authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/user/register").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/merchant").permitAll()
                         .requestMatchers("/api/product/getAll").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/merchant/*").permitAll()
+                        //.requestMatchers(HttpMethod.GET, "/api/merchant/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/product/getone/*").permitAll()
                         .requestMatchers("/api/v1/payment/*").permitAll()
                         .requestMatchers("/api/order/create").permitAll()
@@ -60,24 +62,35 @@ public class AppConfig {
 	
     // CORS Configuration
     private CorsConfigurationSource corsConfigurationSource() {
+        // whitelist các origin bạn dùng
+        List<String> whitelist = Arrays.asList(
+                "http://localhost:30000",
+                "http://localhost:3000",
+                "http://localhost:4200",
+                "https://drone-fastfood-delivery.vercel.app",
+                "https://drone-fastfood-delivery-a6ldzeu4t-chins-projects-6b5b149f.vercel.app",
+                "https://ichthyolitic-vashti-adminicular.ngrok-free.dev"
+        );
+
         return request -> {
             CorsConfiguration cfg = new CorsConfiguration();
-            cfg.setAllowedOrigins(Arrays.asList(
-                    "http://localhost:30000",
-                    "http://localhost:3000", // nếu ai dev trên 3000
-                    "http://localhost:4200",
-                    "https://drone-fastfood-delivery.vercel.app",
-                    "https://drone-fastfood-delivery-a6ldzeu4t-chins-projects-6b5b149f.vercel.app/",
-                    "https://ichthyolitic-vashti-adminicular.ngrok-free.dev" // optional, chỉ nếu bạn gọi backend trực tiếp qua ngrok
-            ));
-            cfg.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
-            cfg.setAllowCredentials(true);
-            cfg.setAllowedHeaders(Collections.singletonList("*"));
+            String origin = request.getHeader("Origin");
+
+            if (origin != null && whitelist.contains(origin)) {
+                cfg.setAllowedOrigins(Collections.singletonList(origin)); // trả đúng origin
+            } else {
+                cfg.setAllowedOrigins(Collections.emptyList()); // hoặc không allow
+            }
+
+            cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            cfg.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"));
             cfg.setExposedHeaders(Arrays.asList("Authorization"));
+            cfg.setAllowCredentials(true);
             cfg.setMaxAge(3600L);
             return cfg;
         };
     }
+
 
     @Bean
     PasswordEncoder passwordEncoder() {

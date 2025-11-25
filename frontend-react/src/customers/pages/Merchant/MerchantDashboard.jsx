@@ -27,6 +27,9 @@ const MerchantDashboard = () => {
       });
 
       console.log("Status /api/merchant/me =", res.status, res.statusText);
+      console.log(">>> API_URL =", API_URL);
+      console.log(">>> URL CALLED =", `${API_URL.replace(/\/$/, "")}/merchant/me`);
+
 
       // If unauthorized, handle explicitly
       if (res.status === 401) {
