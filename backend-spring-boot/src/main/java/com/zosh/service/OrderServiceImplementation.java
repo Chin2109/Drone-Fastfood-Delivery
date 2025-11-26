@@ -100,7 +100,7 @@ public class OrderServiceImplementation implements OrderService {
 
         // 5. Cập nhật tổng tiền, tổng số lượng
         order.setTotalItem(totalItem);
-        order.setTotalPrice(totalPrice);
+        order.setTotalPrice(totalPrice + 15000);
         order.setTotalAmount(totalPrice); // nếu chưa có phí ship/thuế thì cho bằng luôn
 
         order = orderRepository.save(order);

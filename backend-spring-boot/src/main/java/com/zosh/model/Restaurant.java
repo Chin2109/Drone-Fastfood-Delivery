@@ -44,7 +44,7 @@ public class Restaurant {
 //    @Column(length = 1000)
     private boolean open;
 
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
 
     private String businessModel; // 1. Mô hình kinh doanh: công ty/hkd/cá nhân
@@ -75,7 +75,7 @@ public class Restaurant {
     private String restaurantEmail; // 26. Email cửa hàng
     private String restaurantPhoneNumber; // 27. Số điện thoại cửa hàng
 
-    @OneToMany(mappedBy = "restaurant")
+    @OneToMany(mappedBy = "restaurant",cascade = CascadeType.ALL, orphanRemoval = true)
     List<RestaurantImage> restaurantImages;
 
     private RestaurantStatus status;
